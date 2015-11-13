@@ -5,7 +5,7 @@
 
 // structure to keep the varying information on the nodes
 struct RouteInfo;
-struct NodeInfo
+struct NodeInfo					// Client - Element de liste chaînée
 {
     Customer const * customer;
     Time        arrival; // arrival time at the node
@@ -20,7 +20,7 @@ typedef std::vector<NodeInfo> Nvector;
 std::ostream & operator<< (std::ostream &, const NodeInfo &);
 
 
-// structure to keep the varying information on the route
+// structure to keep the varying information on the route				TOURNEE
 struct RouteInfo
 {
     Id          id;
@@ -59,28 +59,29 @@ class WorkingSolution
     float    cpu_time_;
 
   public:
-    WorkingSolution (const Data &);          // done
+    WorkingSolution (const Data &);          // Créer une solution
 
     WorkingSolution & operator= (const WorkingSolution &);
 
     void read (const std::string &);
 
-    void clear ();                           // done
-    bool check () const;                     // done
-    RouteInfo & open_route ();               // done
-    void close_route (RouteInfo &);          // done
-    RouteInfo & open_specific_route (NodeInfo &);   // done
-    void append (RouteInfo &, NodeInfo &);   // done
-    void insert (NodeInfo &, NodeInfo &);    // done
-    void remove (NodeInfo &);
-    void do_merge (const Arc &);             // done
+    void clear ();                           // Vider
+    bool check () const;                     // Vérifier la validité de la solution
+    RouteInfo & open_route ();               // Ouvrir une tournée vide
+    void close_route (RouteInfo &);          // Fermer une tournée
+    RouteInfo & open_specific_route (NodeInfo &);   // Ouvrir une tournée avec un client donnée
+    void append (RouteInfo &, NodeInfo &);   // Ajouter en fin
+    void insert (NodeInfo &, NodeInfo &);    // Insérer un client
+    void remove (NodeInfo &);				 // Extraire un client
+    void do_merge (const Arc &);             // Intègre l'arc dans le graphe ?
 
-    bool is_feasible (NodeInfo &, const Load &, const Time &) const;
-    void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);
+    bool is_feasible (NodeInfo &, const Load &, const Time &) const;			// ?
+    void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 
+	// Getters/Setters
     const Data &      data      () const {return data_;}
-    const unsigned &  nb_routes () const {return nb_routes_;}
+	const unsigned &  nb_routes () const {return nb_routes_;}
           unsigned &  nb_routes ()       {return nb_routes_;}
           double      distance  () const {return (double(total_distance_ - data_.services()) * 0.01);}
           Time & total_distance () {return total_distance_;}

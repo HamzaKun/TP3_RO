@@ -23,13 +23,13 @@ class Customer
     static const Id NO_NODE;
 
   protected:
-    Id       id_;
-    Location x_;
-    Location y_;
-    Load     demand_;
-    Time     open_;
-    Time     close_;
-    Time     service_;
+    Id       id_;			// ID du client
+    Location x_;			// Abscisse
+    Location y_;			// Ordonnée
+    Load     demand_;		// Quantité de produit demandée
+    Time     open_;			// Date au plus tôt
+    Time     close_;		// Date au plus tard
+    Time     service_;		// Temps de service
 
   public:
     Customer (const Id &, const Location &, const Location &, const Load &, const Time &, const Time &, const Time &);
@@ -49,17 +49,17 @@ typedef std::vector<Customer> Cvector;
 std::ostream & operator<< (std::ostream &, const Customer &);
 
 
-class Arc
+class Arc	//arc uv
 {
   public:
     static const Time USELESS;
     static const Time INFINITE;
 
   protected:
-    Id   orig_;
-    Id   dest_;
-    Time cost_;
-    Time saving_;
+    Id   orig_;		// u
+    Id   dest_;		// v
+    Time cost_;		// distance
+    Time saving_;	// Gain pour l'heuristique - Sert pour comparaison
 
   public:
     Arc (const Id & i, const Id & j, const Time & c): orig_(i), dest_(j), cost_(c) {}
@@ -82,16 +82,16 @@ std::ostream & operator<< (std::ostream &, const Arc &);
 class Data
 {
   protected:
-    std::string name_;
-    bool     has_coordinates_;
-    unsigned nb_vehicles_;
-    Load     capacity_;
-    Cvector  nodes_;
-    Id       depot_;
-    Time     total_services_;
-    std::vector< std::vector<Time> > distance_;
-    std::vector< std::vector<bool> > is_valid_;
-    Avector  arcs_;
+    std::string name_;								// Nom graphe
+    bool     has_coordinates_;						//
+    unsigned nb_vehicles_;							// Nombre de vehicules dispo
+    Load     capacity_;								// Capacités par véhicules
+    Cvector  nodes_;								// Sommets du graphes - Vector de clients
+    Id       depot_;								// Id du dépôt ? - Unsigned		
+    Time     total_services_;						//
+    std::vector< std::vector<Time> > distance_;		// Matrice des distances
+    std::vector< std::vector<bool> > is_valid_;		// Matrices de booléens
+    Avector  arcs_;									// Arcs - Vector d'Arcs
 
     void build_arcs ();
     void build_adjacency ();

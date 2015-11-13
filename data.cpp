@@ -10,8 +10,8 @@
 
 const Id Customer::NO_NODE = std::numeric_limits<Id>::max();
 
-
-Customer::Customer (const Id & i, const Location & x, const Location & y, const Load & d, const Time & o, const Time & c, const Time & s): id_(i), x_(x), y_(y), demand_(d), open_(o), close_(c), service_(s)
+Customer::Customer (const Id & i, const Location & x, const Location & y, const Load & d, const Time & o, const Time & c, const Time & s)
+	: id_(i), x_(x), y_(y), demand_(d), open_(o), close_(c), service_(s)
 {
 }
 
@@ -150,7 +150,7 @@ Data::Data(const std::string & filename)
       depot_ = nodes_.size();
     }
 
-    o *= 100.0;
+    o *= 100.0;	// Multiplication de tous les temps par 100
     c *= 100.0;
     s *= 100.0;
     nodes_.push_back(Customer(i,x,y,d,o,c,s));

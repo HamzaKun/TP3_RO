@@ -14,4 +14,94 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="INSTANCES\c101.txt" />
+    <Text Include="INSTANCES\c102.txt" />
+    <Text Include="INSTANCES\c103.txt" />
+    <Text Include="INSTANCES\c104.txt" />
+    <Text Include="INSTANCES\c105.txt" />
+    <Text Include="INSTANCES\c106.txt" />
+    <Text Include="INSTANCES\c107.txt" />
+    <Text Include="INSTANCES\c108.txt" />
+    <Text Include="INSTANCES\c109.txt" />
+    <Text Include="INSTANCES\c201.txt" />
+    <Text Include="INSTANCES\c202.txt" />
+    <Text Include="INSTANCES\c203.txt" />
+    <Text Include="INSTANCES\c204.txt" />
+    <Text Include="INSTANCES\c205.txt" />
+    <Text Include="INSTANCES\c206.txt" />
+    <Text Include="INSTANCES\c207.txt" />
+    <Text Include="INSTANCES\c208.txt" />
+    <Text Include="INSTANCES\r101.txt" />
+    <Text Include="INSTANCES\r102.txt" />
+    <Text Include="INSTANCES\r103.txt" />
+    <Text Include="INSTANCES\r104.txt" />
+    <Text Include="INSTANCES\r105.txt" />
+    <Text Include="INSTANCES\r106.txt" />
+    <Text Include="INSTANCES\r107.txt" />
+    <Text Include="INSTANCES\r108.txt" />
+    <Text Include="INSTANCES\r109.txt" />
+    <Text Include="INSTANCES\r110.txt" />
+    <Text Include="INSTANCES\r111.txt" />
+    <Text Include="INSTANCES\r112.txt" />
+    <Text Include="INSTANCES\r201.txt" />
+    <Text Include="INSTANCES\r202.txt" />
+    <Text Include="INSTANCES\r203.txt" />
+    <Text Include="INSTANCES\r204.txt" />
+    <Text Include="INSTANCES\r205.txt" />
+    <Text Include="INSTANCES\r206.txt" />
+    <Text Include="INSTANCES\r207.txt" />
+    <Text Include="INSTANCES\r208.txt" />
+    <Text Include="INSTANCES\r209.txt" />
+    <Text Include="INSTANCES\r210.txt" />
+    <Text Include="INSTANCES\r211.txt" />
+    <Text Include="INSTANCES\rc101.txt" />
+    <Text Include="INSTANCES\rc102.txt" />
+    <Text Include="INSTANCES\rc103.txt" />
+    <Text Include="INSTANCES\rc104.txt" />
+    <Text Include="INSTANCES\rc105.txt" />
+    <Text Include="INSTANCES\rc106.txt" />
+    <Text Include="INSTANCES\rc107.txt" />
+    <Text Include="INSTANCES\rc108.txt" />
+    <Text Include="INSTANCES\rc201.txt" />
+    <Text Include="INSTANCES\rc202.txt" />
+    <Text Include="INSTANCES\rc203.txt" />
+    <Text Include="INSTANCES\rc204.txt" />
+    <Text Include="INSTANCES\rc205.txt" />
+    <Text Include="INSTANCES\rc206.txt" />
+    <Text Include="INSTANCES\rc207.txt" />
+    <Text Include="INSTANCES\rc208.txt" />
+    <Text Include="BKR.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="algorithms.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="bkr.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="data.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="workingsolution.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="algorithms.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="bkr.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="data.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="workingsolution.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
