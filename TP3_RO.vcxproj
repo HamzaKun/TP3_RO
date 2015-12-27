@@ -205,16 +205,18 @@
     <Text Include="INSTANCES\rc208.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="algorithms.cpp" />
     <ClCompile Include="bkr.cpp" />
     <ClCompile Include="data.cpp" />
+    <ClCompile Include="heuristique_fusion.cpp" />
+    <ClCompile Include="heuristique_insertion.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="workingsolution.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithms.h" />
     <ClInclude Include="bkr.h" />
     <ClInclude Include="data.h" />
+    <ClInclude Include="heuristique_fusion.h" />
+    <ClInclude Include="heuristique_insertion.h" />
     <ClInclude Include="workingsolution.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

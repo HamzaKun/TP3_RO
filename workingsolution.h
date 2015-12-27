@@ -84,6 +84,7 @@ class WorkingSolution
 
 	// Getters/Setters
     const Data &      data      () const {return data_;}
+	Data &			  data		()   	 { return data_; }
 	const unsigned &  nb_routes () const {return nb_routes_;}
           unsigned &  nb_routes ()       {return nb_routes_;}
           double      distance  () const {return (double(total_distance_ - data_.services()) * 0.01);}

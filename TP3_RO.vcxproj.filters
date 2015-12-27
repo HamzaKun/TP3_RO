@@ -74,9 +74,6 @@
     <Text Include="BKR.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="algorithms.cpp">
-      <Filter>Fichiers sources</Filter>
-    </ClCompile>
     <ClCompile Include="bkr.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -89,11 +86,14 @@
     <ClCompile Include="workingsolution.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="heuristique_insertion.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="heuristique_fusion.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithms.h">
-      <Filter>Fichiers d%27en-tête</Filter>
-    </ClInclude>
     <ClInclude Include="bkr.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
@@ -101,6 +101,12 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="workingsolution.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="heuristique_insertion.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="heuristique_fusion.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
