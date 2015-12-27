@@ -72,17 +72,17 @@ class WorkingSolution
 
     void read (const std::string &);
 
-    void clear ();																		// Vider
-    bool check () const;														  // Vérifier la validité de la solution
-    RouteInfo & open_route ();											  // Ouvrir une tournée vide
+    void clear ();														// Vider
+    bool check () const;												// Vérifier la validité de la solution
+    RouteInfo & open_route ();											// Ouvrir une tournée vide
     void close_route (RouteInfo &);										// Fermer une tournée
-    RouteInfo & open_specific_route (NodeInfo &);			 // Ouvrir une tournée avec un client donnée
-    void append (RouteInfo &, NodeInfo &);					  // Ajouter en fin
-    void insert (NodeInfo &, NodeInfo &);					   // Insérer un client
-    void remove (NodeInfo &);												 // Extraire un client
-    void do_merge (const Arc &);										 // Intègre l'arc dans le graphe ?
+    RouteInfo & open_specific_route (NodeInfo &);						// Ouvrir une tournée avec un client donnée
+    void append (RouteInfo &, NodeInfo &);								// Ajouter en fin
+    void insert (NodeInfo &, NodeInfo &);								// Insérer un client
+    void remove (NodeInfo &);											// Extraire un client
+    void do_merge (const Arc &);										// Intègre l'arc dans le graphe ?
 
-    bool is_feasible (NodeInfo &, const Load &, const Time &) const;		// Vérifie si une configuration est possible
+    bool is_feasible (NodeInfo &, const Load &, const Time &) const;	// Vérifie si une configuration est possible
     void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 

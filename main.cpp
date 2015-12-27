@@ -1,4 +1,5 @@
 #include "bkr.h"
+#include "algorithms.h"
 #include "workingsolution.h"
 #include <iostream>
 #include <iomanip>
