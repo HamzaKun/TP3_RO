@@ -33,7 +33,7 @@ std::ostream & operator<< (std::ostream & os, const RouteInfo & route)
 
 NodeInfo  * WorkingSolution::NO_NODE  = nullptr;
 RouteInfo * WorkingSolution::NO_ROUTE = nullptr;
-const Time WorkingSolution::REDUCTION_BONUS = -10000.0 * 100.0;
+const Time WorkingSolution::REDUCTION_BONUS =(Time) (-10000.0 * 100.0);
 const Time WorkingSolution::BAD_EVAL = std::numeric_limits<Time>::max();
 
 
@@ -249,7 +249,7 @@ void WorkingSolution::clear ()
 
   // reset the basic evaluations
   nb_routes_ = 0;
-  total_distance_ = 0.0;
+  total_distance_ = (Time) 0.0;
   cpu_time_ = 0.0;
 }
 
@@ -268,7 +268,7 @@ bool WorkingSolution::check () const
   std::vector<bool> route_visited(data_.nb_clients(), false);
   unsigned cpt_clients = 0;
   unsigned cpt_routes = 0;
-  Time cpt_distance = 0.0;
+  Time cpt_distance = (Time) 0.0;
 
   // check the used route list
   RouteInfo * routeptr = first_;
@@ -426,7 +426,7 @@ RouteInfo & WorkingSolution::open_route ()
   depot.prev = depot.next = &depot;
   depot.load = NO_LOAD;
   depot.arrival = depot.customer->open();
-  routeptr->distance = 0.0;
+  routeptr->distance = (Time) 0.0;
 
   return *routeptr;
 }

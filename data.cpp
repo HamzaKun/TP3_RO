@@ -146,12 +146,12 @@ Data::Data(const std::string & filename)
         std::cerr << "Error: the depot has already been set (read " << i << " was " << depot_ << ")" << std::endl;
         exit(1);
       }
-      depot_ = nodes_.size();
+      depot_ = (Id)nodes_.size();
     }
 
-    o *= 100.0;	// Multiplication de tous les temps par 100
-    c *= 100.0;
-    s *= 100.0;
+    o *= (Time)100.0;	// Multiplication de tous les temps par 100
+    c *= (Time)100.0;
+    s *= (Time)100.0;
     nodes_.push_back(Customer(i,x,y,d,o,c,s));
     total_services_ += s;
   } while (true);
@@ -161,7 +161,7 @@ Data::Data(const std::string & filename)
 
   // compute the distance matrix
   // TODO: compute the distances only once per node pair
-  const unsigned size = nodes_.size();
+  const unsigned size = (unsigned)nodes_.size();
   distance_.resize(size);
   for (unsigned i = 0; i < size; ++i)
   {
@@ -171,12 +171,12 @@ Data::Data(const std::string & filename)
   {
     for (auto j: nodes_)
     {
-      Time dist = 0.0;
+      Time dist = (Time)0.0;
       if (i.id() != j.id())
       {
         Location delta_x = i.x() - j.x();
         Location delta_y = i.y() - j.y();
-        dist = std::round(sqrt(delta_x * delta_x + delta_y * delta_y) * 100.0);
+        dist = (Time)std::round(sqrt(delta_x * delta_x + delta_y * delta_y) * 100.0);
       }
       distance_[i.id()][j.id()] = i.service() + dist;
     }

@@ -29,7 +29,11 @@ struct RouteInfo
     RouteInfo * prev_;
     RouteInfo * next_;
 
-	RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
+		RouteInfo() {
+			throw std::exception("Construction RouteInfo vide");
+		};
+
+		RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
 	:id(id), depot(depot), distance(0), prev_(prev), next_(next) { }
 };
 

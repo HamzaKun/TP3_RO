@@ -1,6 +1,5 @@
 #include "bkr.h"
-#include "algorithms.h"
-
+#include "workingsolution.h"
 #include <iostream>
 #include <iomanip>
 #include <chrono>
@@ -25,8 +24,8 @@ inline double absolute_gap (const unsigned & val, const unsigned & ref)
 inline void report (std::ostream & os, const std::string & method, const WorkingSolution & sol, const float & time, const BKR & bkr)
 {
   std::streamsize w = os.width();
-  int gap_routes   = absolute_gap(sol.nb_routes(), bkr.nb_routes_);
-  float gap_distance = relative_gap(sol.distance(), bkr.total_dist_);
+  int gap_routes   = (int)absolute_gap(sol.nb_routes(), bkr.nb_routes_);
+  float gap_distance = (float)relative_gap((int)sol.distance(), (int)bkr.total_dist_);
   os << bkr.name_ << " [" << std::setw(20) << method << "]   " << std::setw(3) << sol.nb_routes() << std::setw(w) << "," <<  std::setw(5) << sol.distance() << std::setw(w) << "   in " << std::fixed << std::setw(7) << std::setprecision(2) << time << " s   -> " << std::setw(7) << std::showpos << gap_routes << std::noshowpos << ",  " << std::setprecision(2) << gap_distance << " %" << std::setw(w) << std::endl;
 }
 
@@ -51,7 +50,7 @@ void test_solution (const Data & data, const BKR & bkr)
     dummy (sol);
     sol.check();
     end = std::chrono::system_clock::now();
-    duration = 0.001 * std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count();
+    duration = (float)0.001 * std::chrono::duration_cast<std::chrono::milliseconds> (end - start).count();
     report(std::cout, "dummy", sol, duration, bkr);
     std::cout << sol << std::endl;
   }

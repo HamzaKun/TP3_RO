@@ -105,8 +105,8 @@ class Data
 
     const unsigned & fleetSize     () const {return nb_vehicles_;}
     const Load &     fleetCapacity () const {return capacity_;}
-          unsigned   nb_nodes      () const {return nodes_.size();}
-          unsigned   nb_clients    () const {return nodes_.size() - 1;}
+          unsigned   nb_nodes      () const {return (unsigned)nodes_.size();}
+          unsigned   nb_clients    () const {return (unsigned)nodes_.size() - 1;}
     const Id &       depot         () const {return depot_;}
     const Time &     services      () const {return total_services_;}
     const Cvector  & nodes         () const {return nodes_;}
