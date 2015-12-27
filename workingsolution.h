@@ -56,7 +56,7 @@ class WorkingSolution
     const Data & data_;
 
     Nvector			nodes_;						// Vecteur de clients
-    Nvector			depots_;					// Dépôts
+    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees
     Rvector			routes_;					// Vecteur d'arcs (de tournées) = Stockage des arcs
     RouteInfo * first_;						// Première tournée, tête de liste chaînée
     RouteInfo * last_;						// Dernière tournée, fin de liste chaînée

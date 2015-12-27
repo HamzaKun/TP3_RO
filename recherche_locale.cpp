@@ -1,7 +1,6 @@
 #include "recherche_locale.h"
 
 
-
 recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 {
 }
@@ -13,6 +12,19 @@ recherche_locale::~recherche_locale()
 
 void recherche_locale::two_opt_etoile_cp() {
 	//Ajout si possible de 2 tournees
+	WorkingSolution new_ws(ws_);
+	RouteInfo* x = new_ws.first();
+	RouteInfo* y = x->next_;
+	//Parcours des tournees
+	for (RouteInfo* x = new_ws.first(); x != nullptr; x = x->next_) {
+		for (RouteInfo* y = new_ws.first(); y != nullptr; y = y->next_) {
+			if (x != y) {
+			/*	if (new_ws.is_feasible(y->depot, ,y->distance)) {
+
+				}*/
+			}
+		}
+	}
 }
 
 void recherche_locale::two_opt_etoile() {
