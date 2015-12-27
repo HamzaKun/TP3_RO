@@ -116,8 +116,6 @@ class Data
           Time       distance      (const Id & i, const Id & j) const {return distance_[i][j];}
           bool       is_valid      (const Id & i, const Id & j) const {return is_valid_[i][j];}
 
-	// Méthodes pour trier les arcs
-		  void		 sort_arcs	   ();				// Trie les arcs
 };
 
 std::ostream & operator<< (std::ostream &, const Data &);

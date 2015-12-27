@@ -492,7 +492,7 @@ bool WorkingSolution::is_feasible (NodeInfo & node, const Load & incr_capa, cons
   if (incr_time <= 0)
     return true;
 
-  NodeInfo * nodeptr = &node;
+  const NodeInfo * nodeptr = &node;
   Time time = nodeptr->arrival + incr_time;
   do
   {

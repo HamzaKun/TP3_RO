@@ -98,10 +98,6 @@ void Data::build_adjacency()
   build_arcs();
 }
 
-void Data::sort_arcs() {
-	std::sort(arcs_.begin(), arcs_.end(), [](const Arc & a, const Arc & b) {return (a.saving() < b.saving()); });
-}
-
 Data::Data(const std::string & filename)
 {
   // open the instance
