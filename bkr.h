@@ -3,7 +3,7 @@
 #include "data.h"
 
 /*---------------------------------------------*/
-/* Permet de lire les meilleur résulat trouvés */
+/* Permet de lire les meilleur résulats trouvés*/
 /* par des chercheurs sur l'instance traitée   */
 /*---------------------------------------------*/
 struct BKR

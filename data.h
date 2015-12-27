@@ -97,8 +97,9 @@ class Data
     void build_adjacency ();
 
   public:
-    Data (const std::string &);
+    Data (const std::string &);						// Contructeur
 
+	// Getters
     const std::string & name () const {return name_;}
     const bool & has_coordinates () const {return has_coordinates_;}
 
@@ -111,9 +112,12 @@ class Data
     const Cvector  & nodes         () const {return nodes_;}
     const Customer & node          (const Id & i) const {return nodes_[i];}
     const Avector &  arcs          () const {return arcs_;}
-    //const Arc &      arc           (const Id & i, const Id & j) const {return arcs_[0];}
+    const Arc &      arc           (const Id & i, const Id & j) const {return arcs_[0];}
           Time       distance      (const Id & i, const Id & j) const {return distance_[i][j];}
           bool       is_valid      (const Id & i, const Id & j) const {return is_valid_[i][j];}
+
+	// Méthodes pour trier les arcs
+		  void		 sort_arcs	   ();				// Trie les arcs
 };
 
 std::ostream & operator<< (std::ostream &, const Data &);

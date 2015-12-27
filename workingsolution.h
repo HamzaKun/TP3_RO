@@ -9,7 +9,7 @@ struct NodeInfo					// Client - Element de liste chaînée
 {
     Customer const * customer;
     Time        arrival; // arrival time at the node
-    Load        load;    // load upon arrival
+    Load        load;    // load upon arrival: charges cumulées de tous les clients
     RouteInfo * route;   // route tag
     NodeInfo  * prev;    // next node
     NodeInfo  * next;    // previous node
@@ -24,10 +24,13 @@ std::ostream & operator<< (std::ostream &, const NodeInfo &);
 struct RouteInfo
 {
     Id          id;
-    NodeInfo    depot;
+    NodeInfo    depot;						// First customer
     Time        distance;
     RouteInfo * prev_;
     RouteInfo * next_;
+
+	RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
+	:id(id), depot(depot), distance(0), prev_(prev), next_(next) { }
 };
 
 typedef std::vector<RouteInfo> Rvector;
@@ -48,15 +51,15 @@ class WorkingSolution
   protected:
     const Data & data_;
 
-    Nvector  nodes_;
-    Nvector  depots_;
-    Rvector  routes_;
-    RouteInfo * first_;
-    RouteInfo * last_;
-    RouteInfo * free_;
-    unsigned nb_routes_;
-    Time     total_distance_;
-    float    cpu_time_;
+    Nvector  nodes_;				// Vecteur de clients
+    Nvector  depots_;				// Dépôts
+    Rvector  routes_;				// Vecteur d'arcs (de tournées) = Stockage des arcs
+    RouteInfo * first_;				// Première tournée, tête de liste chaînée
+    RouteInfo * last_;				// Dernière tournée, fin de liste chaînée
+    RouteInfo * free_;				// Liste des routes libres
+    unsigned nb_routes_;			// Nombre de routes
+    Time     total_distance_;		// Distance totale des routes
+    float    cpu_time_;				// Temps de calcul
 
   public:
     WorkingSolution (const Data &);          // Créer une solution
@@ -75,7 +78,7 @@ class WorkingSolution
     void remove (NodeInfo &);				 // Extraire un client
     void do_merge (const Arc &);             // Intègre l'arc dans le graphe ?
 
-    bool is_feasible (NodeInfo &, const Load &, const Time &) const;			// ?
+    bool is_feasible (const NodeInfo &, const Load &, const Time &) const;		// Vérifie si une configuration est possible
     void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 
