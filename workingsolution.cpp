@@ -481,7 +481,7 @@ RouteInfo & WorkingSolution::open_specific_route (NodeInfo & node)
 }
 
 /* A fournir : le dernier point de la tournée, la charge ajoutée et la différence de temps */
-bool WorkingSolution::is_feasible (const NodeInfo & node, const Load & incr_capa, const Time & incr_time) const
+bool WorkingSolution::is_feasible (NodeInfo & node, const Load & incr_capa, const Time & incr_time) const
 {
   // capacity check: O(1)
   if (node.route->depot.load + incr_capa > data_.fleetCapacity())
