@@ -30,7 +30,6 @@ struct RouteInfo
     RouteInfo * next_;
 
 		RouteInfo() {
-			throw std::exception("Construction RouteInfo vide");
 		};
 
 		RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
@@ -56,7 +55,7 @@ class WorkingSolution
     const Data & data_;
 
     Nvector			nodes_;						// Vecteur de clients
-    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees
+    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees, le meme pour chaque client
     Rvector			routes_;					// Vecteur d'arcs (de tournées) = Stockage des arcs
     RouteInfo * first_;						// Première tournée, tête de liste chaînée
     RouteInfo * last_;						// Dernière tournée, fin de liste chaînée
@@ -75,7 +74,7 @@ class WorkingSolution
     void clear ();														// Vider
     bool check () const;												// Vérifier la validité de la solution
     RouteInfo & open_route ();											// Ouvrir une tournée vide
-    void close_route (RouteInfo &);										// Fermer une tournée
+    void close_route (RouteInfo &);										// Fermer une tournée /!\ VIDE /!\ */
     RouteInfo & open_specific_route (NodeInfo &);						// Ouvrir une tournée avec un client donnée
     void append (RouteInfo &, NodeInfo &);								// Ajouter en fin
     void insert (NodeInfo &, NodeInfo &);								// Insérer un client

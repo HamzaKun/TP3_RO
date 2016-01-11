@@ -586,6 +586,8 @@ void WorkingSolution::do_merge (const Arc & arc)
 void WorkingSolution::close_route (RouteInfo & route)
 {
   NodeInfo * depotptr = &(route.depot);
+	NodeInfo * prev = depotptr->prev;
+	NodeInfo * next = depotptr->next;
   assert((depotptr->prev == depotptr) && (depotptr->next == depotptr) && "non-empty route");
 
   if (route.prev_ == NO_ROUTE)
