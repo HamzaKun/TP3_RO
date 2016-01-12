@@ -712,18 +712,20 @@ void WorkingSolution::remove (NodeInfo & node)
 }
 
 void WorkingSolution::display() {
-	for each (RouteInfo r in routes_)
+	RouteInfo* route_cur = this->first_;
+	while(route_cur!=nullptr)
 	{
-		NodeInfo * n = &(r.depot);
+		NodeInfo * n = &(route_cur->depot);
 		std::cout << ">> " << n->name;
 		n = n->next;
 		
-		while(n != nullptr && n->customer->id() != r.depot.customer->id())
+		while(n != nullptr && n->customer->id() != route_cur->depot.customer->id())
 		{
 			std::cout << "> " << n->name;
 			n = n->next;
 		}
 		std::cout << std::endl;
+		route_cur = route_cur->next_;
 	}
 }
 

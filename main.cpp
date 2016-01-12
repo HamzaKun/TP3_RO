@@ -94,7 +94,8 @@ int main (int argc, char * argv[])
 	//Appel des 2 heuristiques
 	heuristique_insertion		h_insertion(data);
 	h_insertion.construction_par_insertion();
-	h_insertion.display(); h_insertion.check();
+	h_insertion.display();
+	h_insertion.check();
 
   return 0;
 }
