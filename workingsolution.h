@@ -5,7 +5,7 @@
 
 // structure to keep the varying information on the nodes
 struct RouteInfo;
-struct NodeInfo					// Client - Element de liste chaînée
+struct NodeInfo			// Client - Element de liste chaînée
 {
     Customer const * customer;
     Time        arrival; // arrival time at the node
@@ -58,15 +58,15 @@ class WorkingSolution
     Nvector			nodes_;						// Vecteur de clients
     Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees
     Rvector			routes_;					// Vecteur d'arcs (de tournées) = Stockage des arcs
-    RouteInfo * first_;						// Première tournée, tête de liste chaînée
-    RouteInfo * last_;						// Dernière tournée, fin de liste chaînée
-    RouteInfo * free_;						// Liste des routes libres
-    unsigned		nb_routes_;				// Nombre de routes
-    Time				total_distance_;	// Distance totale des routes
+    RouteInfo * first_;							// Première tournée, tête de liste chaînée
+    RouteInfo * last_;							// Dernière tournée, fin de liste chaînée
+    RouteInfo * free_;							// Liste des routes libres
+    unsigned		nb_routes_;					// Nombre de routes
+    Time				total_distance_;		// Distance totale des routes
     float				cpu_time_;				// Temps de calcul
 
   public:
-    WorkingSolution (const Data &);          // Créer une solution
+    WorkingSolution (const Data &);				// Créer une solution
 
     WorkingSolution & operator= (const WorkingSolution &);
 
@@ -91,7 +91,7 @@ class WorkingSolution
 		const unsigned &  nb_routes () const {return nb_routes_;}
           unsigned &  nb_routes ()       {return nb_routes_;}
           double      distance  () const {return (double(total_distance_ - data_.services()) * 0.01);}
-          Time & total_distance () {return total_distance_;}
+          Time & total_distance ()		 {return total_distance_;}
     const float &     cpu_time  () const {return cpu_time_;}
           float &     cpu_time  ()       {return cpu_time_;}
 
