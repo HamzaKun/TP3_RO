@@ -5,7 +5,7 @@
 
 // structure to keep the varying information on the nodes
 struct RouteInfo;
-struct NodeInfo			// Client - Element de liste chaînée
+struct NodeInfo					// Client - Element de liste chaînée
 {
     Customer const * customer;
     Time        arrival; // arrival time at the node
@@ -13,6 +13,8 @@ struct NodeInfo			// Client - Element de liste chaînée
     RouteInfo * route;   // route tag
     NodeInfo  * prev;    // next node
     NodeInfo  * next;    // previous node
+
+	std::string	name;			// Ajout : nom du noeud
 };
 
 typedef std::vector<NodeInfo> Nvector;
@@ -30,7 +32,6 @@ struct RouteInfo
     RouteInfo * next_;
 
 		RouteInfo() {
-			throw std::exception("Construction RouteInfo vide");
 		};
 
 		RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
@@ -56,17 +57,17 @@ class WorkingSolution
     const Data & data_;
 
     Nvector			nodes_;						// Vecteur de clients
-    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees
+    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees, le meme pour chaque client
     Rvector			routes_;					// Vecteur d'arcs (de tournées) = Stockage des arcs
-    RouteInfo * first_;							// Première tournée, tête de liste chaînée
-    RouteInfo * last_;							// Dernière tournée, fin de liste chaînée
-    RouteInfo * free_;							// Liste des routes libres
-    unsigned		nb_routes_;					// Nombre de routes
-    Time				total_distance_;		// Distance totale des routes
+    RouteInfo * first_;						// Première tournée, tête de liste chaînée
+    RouteInfo * last_;						// Dernière tournée, fin de liste chaînée
+    RouteInfo * free_;						// Liste des routes libres
+    unsigned		nb_routes_;				// Nombre de routes
+    Time				total_distance_;	// Distance totale des routes
     float				cpu_time_;				// Temps de calcul
 
   public:
-    WorkingSolution (const Data &);				// Créer une solution
+    WorkingSolution (const Data &);          // Créer une solution
 
     WorkingSolution & operator= (const WorkingSolution &);
 
@@ -75,7 +76,7 @@ class WorkingSolution
     void clear ();														// Vider
     bool check () const;												// Vérifier la validité de la solution
     RouteInfo & open_route ();											// Ouvrir une tournée vide
-    void close_route (RouteInfo &);										// Fermer une tournée
+    void close_route (RouteInfo &);										// Fermer une tournée /!\ VIDE /!\ */
     RouteInfo & open_specific_route (NodeInfo &);						// Ouvrir une tournée avec un client donnée
     void append (RouteInfo &, NodeInfo &);								// Ajouter en fin
     void insert (NodeInfo &, NodeInfo &);								// Insérer un client
@@ -86,12 +87,14 @@ class WorkingSolution
     void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 
+	void display();
+
 	// Getters/Setters
     const Data &      data      () const {return data_;}
 		const unsigned &  nb_routes () const {return nb_routes_;}
           unsigned &  nb_routes ()       {return nb_routes_;}
           double      distance  () const {return (double(total_distance_ - data_.services()) * 0.01);}
-          Time & total_distance ()		 {return total_distance_;}
+          Time & total_distance () {return total_distance_;}
     const float &     cpu_time  () const {return cpu_time_;}
           float &     cpu_time  ()       {return cpu_time_;}
 

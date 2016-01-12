@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <chrono>
 #include <random>
+#include "heuristique_insertion.h"
+#include "heuristique_fusion.h"
 
 
 // inline function to compute the relative gap
@@ -46,7 +48,7 @@ void test_solution (const Data & data, const BKR & bkr)
 
   if (true)
   {
-    //std::cout << "dummy solution" << std::endl;
+    std::cout << "dummy solution" << std::endl;
     start = std::chrono::system_clock::now();
     dummy (sol);
     sol.check();
@@ -61,7 +63,7 @@ void test_solution (const Data & data, const BKR & bkr)
 // main function
 int main (int argc, char * argv[])
 {
-  std::string filename("INSTANCES/rc101.txt");
+  std::string filename("INSTANCES/r101.txt");
 
   // check the command line
   if (argc > 2)
@@ -88,6 +90,11 @@ int main (int argc, char * argv[])
   {
     test_solution (data, bkr);
   }
+	
+	//Appel des 2 heuristiques
+	heuristique_insertion		h_insertion(data);
+	h_insertion.construction_par_insertion();
+	h_insertion.display(); h_insertion.check();
 
   return 0;
 }

@@ -9,7 +9,7 @@ public:
 	recherche_locale(WorkingSolution& ws);
 	~recherche_locale();
 	
-	//Algos RL
+	// Algos RL
 	void two_opt_etoile_cp();					//Cas particulier
 	void two_opt_etoile();						//Cas general (appel cas particulier)
 	void ot_opt_cp();									//Cas particulier

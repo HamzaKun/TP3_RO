@@ -3,42 +3,52 @@
 
 heuristique_insertion::heuristique_insertion(const Data & d)
 	: WorkingSolution(d), c_free_() {
-	for (unsigned i = 0; i < nodes_.size(); i++) {		//Ajout de tous les clients libres
-		c_free_.push(& nodes_[i]);
+	for (unsigned i = 0; i < nodes_.size(); i++) {		// Ajout de tous les clients libres
+		c_free_.push(nodes_[i]);
 	}
-}
 
+	// TODO : mélanger c_free_
+}
 
 void heuristique_insertion::construction_par_insertion()
 {
 	// Tant qu'un client libre existe
-	int i;
-	while (c_free_.size() > 0) {
-		//Init d'une tournee
-		depots_.push_back(NodeInfo());															// Ajout de depot de la route
-		NodeInfo& prec_node = depots_[i];														// Creation du client prec
-		i++;																												// inc ce l'id
+	int i = 1;															// 0 = dépôt
+	while (i < nodes_.size()) {
 
-		routes_.push_back(open_specific_route(prec_node));										// ajout de la route
-		RouteInfo& cur_route = routes_.back();													// pt courant
+		// Init d'une tournee
+		NodeInfo& prec_node = nodes_[i++];								// Definition du prec
 
-		prec_node.route = &cur_route;															// lien node/route
+		prec_node = nodes_[i++];										// Definition du prec
 
-		NodeInfo* cur_node = c_free_.top();														// creation du client courant
-		cur_node->route = &cur_route;															// lien node/route
+		if (prec_node.customer->id() == data().depot())
+			std::cout << "Lapin !" << std::endl;
+
+		RouteInfo& cur_route = open_specific_route(prec_node);			// Création de la route
+		
+		cur_route.depot.name = "depot";
+
+		prec_node.name = "first";
+
+		if (i >= nodes_.size()) break;
+
+		NodeInfo& cur_node = nodes_[i++];																	// creation du client courant
+		cur_node.route = &cur_route;																// lien cur_node/route
+		cur_node.name = "second";
 
 		int i = 0;
-		while (is_feasible(*cur_node, cur_node->load, cur_node->arrival)						// Si possible
-					&& data_.distance(prec_node.customer->id(), cur_node->customer->id()) <		// distance prec/cur
-					data_.distance(cur_route.depot.customer->id(), cur_node->customer->id())) {	// < distance depot/cur
+		while (is_feasible(cur_node, cur_node.load, cur_node.arrival)									// Si possible
+					&& data_.distance(prec_node.customer->id(), cur_node.customer->id()) <=			// distance prec/cur
+					data_.distance(cur_route.depot.customer->id(), cur_node.customer->id())) {	// < distance depot/cur
 			
-			append(cur_route, *cur_node);														// Ajout du client dans la tournee
-			c_free_.pop();																		// On vire le client de de la pile
+			append(cur_route, cur_node);		// Ajout du client dans la tournee	
+
+			if (i >= nodes_.size()) break;
 			
-			prec_node = *cur_node;																// On incrémente
-			cur_node = c_free_.top();
-			cur_node->route = &cur_route;
+			prec_node = cur_node;				// On incrémente
+			cur_node = nodes_[i++];
+			cur_node.route = &cur_route;
+			cur_node.name = "next";
 		}
-		close_route(cur_route);
 	}
 }

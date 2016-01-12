@@ -218,6 +218,7 @@ void WorkingSolution::clear ()
     depot.prev = NO_NODE;
     depot.next = NO_NODE;
   }
+
   // clear the information on the routes
   // TODO: only reset for the routes that are used?
   for (auto & route: routes_)
@@ -586,6 +587,8 @@ void WorkingSolution::do_merge (const Arc & arc)
 void WorkingSolution::close_route (RouteInfo & route)
 {
   NodeInfo * depotptr = &(route.depot);
+	NodeInfo * prev = depotptr->prev;
+	NodeInfo * next = depotptr->next;
   assert((depotptr->prev == depotptr) && (depotptr->next == depotptr) && "non-empty route");
 
   if (route.prev_ == NO_ROUTE)
@@ -706,6 +709,22 @@ void WorkingSolution::remove (NodeInfo & node)
   node.route = NO_ROUTE;
   node.prev = NO_NODE;
   node.next = NO_NODE;
+}
+
+void WorkingSolution::display() {
+	for each (RouteInfo r in routes_)
+	{
+		NodeInfo * n = &(r.depot);
+		std::cout << ">> " << n->name;
+		n = n->next;
+		
+		while(n != nullptr && n->customer->id() != r.depot.customer->id())
+		{
+			std::cout << "> " << n->name;
+			n = n->next;
+		}
+		std::cout << std::endl;
+	}
 }
 
 
