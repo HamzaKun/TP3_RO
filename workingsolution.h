@@ -59,15 +59,15 @@ class WorkingSolution
   protected:
     const Data & data_;
 
-    Nvector			nodes_;						// Vecteur de clients
-    Nvector			depots_;					// Dépôts : pt de departs pr chaque tournees, le meme pour chaque client
-    Rvector			routes_;					// Vecteur d'arcs (de tournées) = Stockage des arcs
+    Nvector			nodes_;					// Vecteur de clients
+    Nvector			depots_;				// Dépôts : pt de departs pr chaque tournees, le meme pour chaque client
+    Rvector			routes_;				// Vecteur d'arcs (de tournées) = Stockage des arcs
     RouteInfo * first_;						// Première tournée, tête de liste chaînée
     RouteInfo * last_;						// Dernière tournée, fin de liste chaînée
     RouteInfo * free_;						// Liste des routes libres
     unsigned		nb_routes_;				// Nombre de routes
     Time				total_distance_;	// Distance totale des routes
-    float				cpu_time_;				// Temps de calcul
+    float				cpu_time_;			// Temps de calcul
 
   public:
     WorkingSolution (const Data &);          // Créer une solution
