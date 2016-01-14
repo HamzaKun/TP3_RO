@@ -68,9 +68,52 @@ bool recherche_locale::two_opt_etoile_cp() {
 }
 
 bool recherche_locale::two_opt_etoile() {
-	//inversement de fins de 2 tournees
+	
+	bool retour = false;													// Par défaut on retourne faux
+	WorkingSolution new_w(ws_);												// Création d'une nouvelle solution
 
-	return false;
+	for each (NodeInfo a in new_w.nodes())
+	{
+		for each (NodeInfo b in new_w.nodes())
+		{
+			// TODO : tester qu'on est pas au dépôt
+			if (a.route != b.route) {										// On vérifie que a et b ne soient pas sur la même route
+				// Premier gain potentiel : (a -> a') - (a -> b')
+				Time a_b2 = new_w.data().distance(a.customer->id(), b.next->customer->id());
+				Time b_a2 = new_w.data().distance(b.customer->id(), a.next->customer->id());
+
+				Time gain = new_w.data().distance(a.customer->id(), a.next->customer->id()) - a_b2;
+				// Second gain potentiel : (b -> b') - (b -> a')
+				gain += new_w.data().distance(b.customer->id(), b.next->customer->id()) - b_a2;
+				if (gain > 0) {
+					// Vérification de la charge :
+					Load c1 = b.route->depot.load - b.load + a.load;
+					Load c2 = a.route->depot.load - a.load + b.load;
+					if (c1 < new_w.data().fleetCapacity() && c2 < new_w.data().fleetCapacity()) {
+						// Vérification de la fenêtre de temps, premier changement :
+						if ((a.arrival + a_b2 < b.next->customer->close()) && (a.arrival + a_b2 > b.next->customer->open())) {
+							if ((b.arrival + b_a2 < a.next->customer->close()) && (b.arrival + b_a2 > a.next->customer->open())) {
+								// On fait le 2-opt *
+								// Permutation
+								NodeInfo * tmp = a.next;					// On fait une permutation, obligé d'utiliser une variable temporaire
+								a.next = b.next;
+								b.next = tmp;
+
+								// Update des données :
+								new_w.update2(a);
+								new_w.update2(b);
+
+								ws_ = new_w;								// On garde la nouvelle solution
+								retour = true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return retour;
 }
 
 bool recherche_locale::ot_opt_cp() {

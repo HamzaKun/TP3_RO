@@ -560,7 +560,6 @@ void WorkingSolution::update (NodeInfo & node, const Load & incr_load, const Tim
   nodeptr->arrival = time;
 }
 
-
 // same update function, but starts from the last right node
 void WorkingSolution::update2 (NodeInfo & node)
 {
