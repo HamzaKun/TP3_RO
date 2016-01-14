@@ -1,12 +1,15 @@
-#include "bkr.h"
-#include "algorithms.h"
-#include "workingsolution.h"
 #include <iostream>
 #include <iomanip>
 #include <chrono>
 #include <random>
+
+#include "bkr.h"
+#include "algorithms.h"
+#include "workingsolution.h"
+
 #include "heuristique_insertion.h"
 #include "heuristique_fusion.h"
+#include "recherche_locale.h"
 
 
 // inline function to compute the relative gap
@@ -96,6 +99,8 @@ int main (int argc, char * argv[])
 	h_insertion.construction_par_insertion();
 	h_insertion.display();
 	h_insertion.check();
+
+	recherche_locale rl(h_insertion);
 
   return 0;
 }
