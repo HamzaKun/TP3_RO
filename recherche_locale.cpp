@@ -21,7 +21,7 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 		}
 	}
 
-	recherche_node_fenetre_temps(ws_.nodes()[1]);
+	//recherche_node_fenetre_temps(ws_.nodes()[1]);
 
 	//si ca ca marche pas (ce qui est probable)
 	//while (two_opt_etoile_cp()) {}
@@ -35,8 +35,6 @@ bool recherche_locale::two_opt_etoile_cp() {
 	//Ajout si possible de 2 tournees
 	bool retour = false;														// Return false par défaut
 
-	std::cout << "Coucou !" << std::endl;
-
 	WorkingSolution new_w(ws_);
 
 	NodeInfo * x_node;
@@ -44,27 +42,28 @@ bool recherche_locale::two_opt_etoile_cp() {
 	NodeInfo * y_first_node;
 
 	// Parcours des tournees
-	for (RouteInfo * x = new_w.first()->next_; x != nullptr; x = x->next_) {	// Pour chaque route
-		for (RouteInfo * y = new_w.first(); x != nullptr; x = x->next_) {		// Pour chaque autre route
-			if (x != y) {														// Si on a pas affaire à la même route
+	for (RouteInfo * x = new_w.first(); x != nullptr; x = x->next_) {		// Pour chaque route
+		for (RouteInfo * y = new_w.first(); y != nullptr; y = y->next_) {	// Pour chaque autre route
+			if (x != y) {													// Si on a pas affaire à la même route
 				x_node = x->depot.prev;
 				y_depot = &(x->depot);
 				y_first_node = y_depot->next;
 
 				// Vérification de la charge
 				if (x_node->load + y_depot->load < new_w.data().fleetCapacity()) {
-
 					// Vérification de la fenêtre de temps : calcul de la distance
 					Time arrivalTime = x_node->arrival + new_w.data().distance(x_node->customer->id(), y_first_node->customer->id());
+					
 					if ( (arrivalTime < y_first_node->customer->close()) && (arrivalTime > y_first_node->customer->open())) {
 						new_w.append((*x), (*y_first_node));
+						ws_ = new_w;										// Nouvelle solution
 						retour = true;
+						std::cout << "Amélioration faite !" << std::endl;
 					}
 				}
 			}
 		}
 	}
-
 	return retour;
 }
 

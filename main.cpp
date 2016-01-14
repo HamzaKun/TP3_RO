@@ -102,5 +102,7 @@ int main (int argc, char * argv[])
 
 	recherche_locale rl(h_insertion);
 
+	h_insertion.display();
+
   return 0;
 }
