@@ -467,8 +467,11 @@ RouteInfo & WorkingSolution::open_specific_route (NodeInfo & node)
   node.load = depot.load = node.customer->demand();
   Id id = node.customer->id();
   Time dist1 = data_.distance(data_.depot(),id);
-  Time time = dist1;
-  node.arrival = time;
+
+	//MODIFICATION (TODO):
+  //Time time = std::max(dist1,node.customer->open());
+ 	Time time = dist1;
+	node.arrival = time;
   if (time < node.customer->open())
   {
     time = node.customer->open();
@@ -509,6 +512,34 @@ bool WorkingSolution::is_feasible (NodeInfo & node, const Load & incr_capa, cons
 
   return true;
 }
+bool WorkingSolution::is_feasible(NodeInfo & node, RouteInfo & route, const Load & incr_capa, const Time & incr_time) const
+{
+	// capacity check: O(1)
+	if (route.depot.load + incr_capa > data_.fleetCapacity())
+		return false;
+
+	// time window check: O(k)
+	// TODO: reduce to O(1) check
+	if (incr_time <= 0)
+		return true;
+
+	const NodeInfo * nodeptr = &node;
+	Time time = nodeptr->arrival + incr_time;
+	do
+	{
+		if (time < nodeptr->customer->open())
+			return true;
+		if (time > nodeptr->customer->close())
+			return false;
+		if (nodeptr->customer->id() == data_.depot())
+			break;
+		time = std::max(time, nodeptr->customer->open()) + data_.distance(nodeptr->customer->id(), nodeptr->next->customer->id());
+		nodeptr = nodeptr->next;
+	} while (true);
+
+	return true;
+}
+
 
 
 // update function, starts from the first node to be updated (load & arrival to update)
@@ -727,6 +758,7 @@ void WorkingSolution::display() {
 		std::cout << std::endl;
 		route_cur = route_cur->next_;
 	}
+	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
 }
 
 
