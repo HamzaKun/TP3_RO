@@ -102,5 +102,9 @@ int main (int argc, char * argv[])
 
 	recherche_locale rl(h_insertion);
 
+	std::cout << " Rech loc" << std::endl;
+	h_insertion.display();
+
+
   return 0;
 }

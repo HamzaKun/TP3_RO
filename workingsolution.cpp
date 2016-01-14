@@ -296,6 +296,9 @@ bool WorkingSolution::check () const
     // check the route
     NodeInfo * depotptr = &(routeptr->depot);
     NodeInfo * nodeptr = depotptr;
+		if (nodeptr->next == NO_NODE) {
+			std::cout << "error depot from road n" << nodeptr->route->id << std::endl;
+		}
     assert((nodeptr->next != NO_NODE) && "prev == nullptr for a depot");
     assert((nodeptr->next != depotptr) && "empty route");
     Load load = NO_LOAD;
@@ -512,33 +515,6 @@ bool WorkingSolution::is_feasible (NodeInfo & node, const Load & incr_capa, cons
 
   return true;
 }
-bool WorkingSolution::is_feasible(NodeInfo & node, RouteInfo & route, const Load & incr_capa, const Time & incr_time) const
-{
-	// capacity check: O(1)
-	if (route.depot.load + incr_capa > data_.fleetCapacity())
-		return false;
-
-	// time window check: O(k)
-	// TODO: reduce to O(1) check
-	if (incr_time <= 0)
-		return true;
-
-	const NodeInfo * nodeptr = &node;
-	Time time = nodeptr->arrival + incr_time;
-	do
-	{
-		if (time < nodeptr->customer->open())
-			return true;
-		if (time > nodeptr->customer->close())
-			return false;
-		if (nodeptr->customer->id() == data_.depot())
-			break;
-		time = std::max(time, nodeptr->customer->open()) + data_.distance(nodeptr->customer->id(), nodeptr->next->customer->id());
-		nodeptr = nodeptr->next;
-	} while (true);
-
-	return true;
-}
 
 
 
@@ -746,16 +722,7 @@ void WorkingSolution::display() {
 	RouteInfo* route_cur = this->first_;
 	while(route_cur!=nullptr)
 	{
-		NodeInfo * n = &(route_cur->depot);
-		std::cout << ">> " << n->name;
-		n = n->next;
-		
-		while(n != nullptr && n->customer->id() != route_cur->depot.customer->id())
-		{
-			std::cout << "> " << n->name;
-			n = n->next;
-		}
-		std::cout << std::endl;
+		route_cur->display();
 		route_cur = route_cur->next_;
 	}
 	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
@@ -777,4 +744,17 @@ std::ostream & operator<< (std::ostream & os, const WorkingSolution & sol)
 //  }
 
   return os;
+}
+
+void RouteInfo::display() {
+	NodeInfo * n = &(depot);
+	std::cout << "Road:" << id << " >> " << n->name;
+	n = n->next;
+
+	while (n->customer->id() != depot.customer->id())
+	{
+		std::cout << "> " << n->name;
+		n = n->next;
+	}
+	std::cout << std::endl;
 }
