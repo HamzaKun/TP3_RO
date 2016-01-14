@@ -14,16 +14,39 @@ recherche_locale::~recherche_locale()
 
 bool recherche_locale::two_opt_etoile_cp() {
 	//Ajout si possible de 2 tournees
-	WorkingSolution new_ws(ws_);
-	RouteInfo* x = new_ws.first();
-	RouteInfo* y = x->next_;
-	//Parcours des tournees
-	for (RouteInfo* x = new_ws.first(); x != nullptr; x = x->next_) {
-		for (RouteInfo* y = new_ws.first(); y != nullptr; y = y->next_) {
-			if (x != y) {
-			/*	if (new_ws.is_feasible(y->depot, ,y->distance)) {
 
-				}*/
+	
+	NodeInfo * x_node;
+	NodeInfo * y_depot;
+	NodeInfo * y_first_node;
+
+	NodeInfo * next_depot;
+	NodeInfo * cur_node;
+
+	WorkingSolution new_w(ws_);
+	RouteInfo* x = nullptr;
+	RouteInfo* y = nullptr;
+
+
+	// Parcours des tournees
+	
+	for (RouteInfo * x = new_w.first()->next_; x != nullptr; x = x->next_) {		// Pour chaque route
+		for (RouteInfo * y = new_w.first(); x != nullptr; x = x->next_) {		// Pour chaque autre route
+			if (x != y) {														// Si on a pas affaire à la même route
+				x_node = x->depot.prev;
+				y_depot = &(x->depot);
+				y_first_node = y_depot->next;
+				
+
+				// Vérification de la charge
+				if (x_node->load + y_depot->load < new_w.data().fleetCapacity()) {
+					
+					// Vérification de la fenêtre de temps : calcul de la distance
+					Time arrivalTime = x_node->arrival + new_w.data().distance(x_node->customer->id, y_first_node->customer->id);
+					if (arrivalTime < y_first_node->customer->close && arrivalTime > y_first_node->customer->open) {
+						new_w.append((*x), (*y_first_node));
+					}
+				}
 			}
 		}
 	}
