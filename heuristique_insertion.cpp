@@ -49,6 +49,14 @@ void heuristique_insertion::construction_par_insertion()
 			cur_node = new NodeInfo;
 		}
 	}
+	// On met a jour nodes_
+	for (RouteInfo* r = first_; r != nullptr;r=r->next_)
+	{
+		for (NodeInfo* n = r->depot.next; n->customer->id() != r->depot.customer->id(); n=n->next)
+		{
+			nodes_[n->customer->id()] = *n;
+		}
+	}
 }
 
 // TODO Il faudrait renvoyer un booleen avec cette fonction vrai si une nouvel ele est trouve faux sinon et stocke ledit ele dans un parametre
@@ -70,7 +78,7 @@ bool heuristique_insertion::recherche_meilleur_client(NodeInfo* last_node, Time 
 			node_dispo.push_back(std::pair<NodeInfo*, int>(c_free_[i],i));
 			
 			if (DEBUG)
-				std::cout << c_free_[i]->customer->open() << " " << distance_already_run + cur_distance << "+" << c_free_[i]->customer->service() << " " << c_free_[i]->customer->close() << " id:" << c_free_[i]->customer->id() << std::endl;
+				std::cout << c_free_[i]->customer->open() << " " << distance_already_run + cur_distance << " " << c_free_[i]->customer->close() << " id:" << c_free_[i]->customer->id() << std::endl;
 		}
 	}
 

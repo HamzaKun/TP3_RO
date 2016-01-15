@@ -39,6 +39,7 @@ struct RouteInfo
 	:id(id), depot(depot), distance(0), prev_(prev), next_(next) { }
 
 		void display();
+		void display2(const Data & data);
 };
 
 typedef std::vector<RouteInfo> Rvector;
@@ -91,6 +92,7 @@ class WorkingSolution
     void update2     (NodeInfo &);
 
 		void display();
+		void display2();
 
 	// Getters/Setters
     const Data &      data      () const {return data_;}

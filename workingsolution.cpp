@@ -273,6 +273,11 @@ bool WorkingSolution::check () const
 
   // check the used route list
   RouteInfo * routeptr = first_;
+	std::vector<Id> compteur_client;
+	for (unsigned i = 0;i <= data_.nb_clients();i++) {
+		compteur_client.push_back((Id)i);
+	}
+
   while (routeptr != NO_ROUTE)
   {
     assert((routeptr != NO_ROUTE) && "nullptr for route");
@@ -306,7 +311,8 @@ bool WorkingSolution::check () const
     Time distance;
     Time cpt_local_distance = NO_TIME;
     nodeptr = nodeptr->next;
-    while (nodeptr != depotptr)
+		
+		while (nodeptr != depotptr)
     {
       assert((nodeptr != nullptr) && "null pointer to node");
       id = nodeptr->customer->id();
@@ -342,6 +348,7 @@ bool WorkingSolution::check () const
       // update the evaluation
       cpt_local_distance += distance;
       ++cpt_clients;
+			compteur_client[nodeptr->customer->id()]=-1;
 
       // iterate
       nodeptr = nodeptr->next;
@@ -371,6 +378,17 @@ bool WorkingSolution::check () const
 
   // check the evaluations
   assert((cpt_routes == nb_routes_) && "wrong number of routes");
+
+	if (cpt_clients != data_.nb_clients()) {
+		std::cout << "unreferenced clients :";
+		for each (Id id in compteur_client)
+		{
+			if (id != -1) {
+				std::cout << " " << id;
+			}
+		}
+		std::cout << std::endl;
+	}
   assert((cpt_clients == data_.nb_clients()) && "some unreferenced clients");
 //  std::cout << "total_distance_ = " << total_distance_ << " computed = " << cpt_distance << std::endl;
   assert((cpt_distance == total_distance_) && "wrong total distance");
@@ -727,6 +745,16 @@ void WorkingSolution::display() {
 	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
 }
 
+void WorkingSolution::display2() {
+	RouteInfo* route_cur = this->first_;
+	while (route_cur != nullptr)
+	{
+		route_cur->display2(data_);
+		route_cur = route_cur->next_;
+	}
+	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
+}
+
 
 bool operator< (const WorkingSolution & s1, const WorkingSolution & s2)
 {
@@ -752,8 +780,24 @@ void RouteInfo::display() {
 
 	while (n->customer->id() != depot.customer->id())
 	{
-		std::cout << "> " << n->name;
+		std::cout << "> " << n->name << " " << n->customer->id();
 		n = n->next;
 	}
 	std::cout << std::endl;
 }
+
+void RouteInfo::display2(const Data& data) {
+	NodeInfo * n = &(depot);
+	std::cout << "Road:" << id << " t:" << n->arrival << " >> ";
+	n = n->next;
+
+	while (n->customer->id() != depot.customer->id())
+	{
+		Time distance = data.distance(n->customer->id(), n->next->customer->id());
+		std::cout << "id:" << n->customer->id() << " : " << n->arrival 
+			<< "+" << std::max(distance,n->next->customer->open() - n->arrival) << "> ";
+		n = n->next;
+	}
+	std::cout << std::endl;
+}
+

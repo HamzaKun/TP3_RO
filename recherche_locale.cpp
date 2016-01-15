@@ -21,8 +21,8 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 		}
 	}
 
-	recherche_node_fenetre_temps(ws_.nodes()[1]);
-	std::vector<RouteInfo*> vect_r = get_all_unique_route();
+	/*recherche_node_fenetre_temps(ws_.nodes()[1]);
+	std::vector<RouteInfo*> vect_r = get_all_unique_route();*/
 
 	//std::cout << "Appel get_all_unique_route" << std::endl;
 	//for (int i = 0;i < vect_r.size();i++) {
@@ -123,10 +123,13 @@ bool recherche_locale::two_opt_etoile() {
 }
 
 bool recherche_locale::ot_opt_cp() {
-	//Insertion d'un point seul dans une tournee dans une autre tournee
+
+	bool retour = false;
+
+	// Insertion d'un point seul dans une tournee dans une autre tournee
 	std::vector<RouteInfo*> vect_road_clients_uniques = get_all_unique_route();
 
-	//Parcours des clients seuls
+	// Parcours des clients seuls
 	for (int i = 0;i < vect_road_clients_uniques.size();i++) {
 		std::cout << ((float)i * 100.0) / (float)vect_road_clients_uniques.size() << "%" << std::endl;
 		NodeInfo* client_unique = vect_road_clients_uniques[i]->depot.next;
@@ -145,37 +148,34 @@ bool recherche_locale::ot_opt_cp() {
 				//Parcours des clients de la route
 				while ((cont || cur_node->customer->id() != route_cur->depot.customer->id()) && !client_insere){
 					cont = false;
+					Time distance = ws_.data().distance(client_unique->customer->id(), cur_node->customer->id());
+					Time time_to_reach_unique_client = std::max(cur_node->arrival, cur_node->customer->open()) 
+						+ distance;
 
 					//Si client eligible
-					if (cur_node->arrival > client_unique->customer->open() &&																								//Intervalle temps
-						cur_node->arrival < client_unique->customer->close() &&
+					if (time_to_reach_unique_client > client_unique->customer->open() &&																								//Intervalle temps
+						time_to_reach_unique_client < client_unique->customer->close() &&
 
-						ws_.is_feasible(*cur_node, client_unique->customer->demand(), client_unique->customer->service())) {		//test temps et capacite
-
+						ws_.is_feasible(*cur_node, client_unique->customer->demand(), std::max(distance, client_unique->customer->open())))
+					{		//test temps et capacite
 																									// On supprime le client inutil
 						ws_.remove(*client_unique);						// Supprime egalement la tournee
 
 						//Mise a jour du client
-						client_unique->route = route_cur;
-						client_unique->arrival =
-							cur_node->arrival
-							+ cur_node->customer->service()
-							+ std::max(ws_.data().distance(client_unique->customer->id(), cur_node->customer->id()), client_unique->customer->open());
-						client_unique->load = cur_node->load + cur_node->customer->demand();
+						client_unique->route = cur_node->route;
+						client_unique->arrival = NO_TIME;
+						client_unique->load = NO_LOAD;
 
-						client_unique->prev =	cur_node;
-						client_unique->next = cur_node->next;
-
-						client_unique->prev->next = client_unique;
-						client_unique->next->prev = client_unique;
+						ws_.insert(*cur_node, *client_unique);
 
 						//Mise a jour des autres clients
-						ws_.update2(*client_unique);
+						ws_.update2(*cur_node);
 						std::cout << std::endl;
-						ws_.display();
+					//	ws_.display2();
 						ws_.check();
 
 						client_insere = true;
+						retour = true;
 					}
 					cur_node = cur_node->next;
 				}
@@ -186,12 +186,58 @@ bool recherche_locale::ot_opt_cp() {
 	//melange au sein d'une meme tournee
 	//swap a et b voisin
 
-	return false;
+	return retour;
 }
 bool recherche_locale::ot_opt() {
+	
+	std::vector<Id> already_done; // vecteur contenant les points deja echange;
+	bool retour = false;
+	
 	//insertion d'un node dans une nouvelle tournee
+	for (int i = 1; i < ws_.nodes().size(); i++) {
+		for (int j = 1; j < ws_.nodes().size();j++) {
 
-	return false;
+			// Test si i et j ne pointent pas sur le meme point et si le point j n'a pas deja ete insere en tant que point i
+			if (i != j && std::find(already_done.begin(), already_done.end(), ws_.nodes()[j].customer->id()) == already_done.end()) {
+				
+				NodeInfo& node_to_insert = ws_.nodes()[i];
+				NodeInfo& prec_to_node_to_insert = ws_.nodes()[j];
+
+				Time distance = ws_.data().distance(prec_to_node_to_insert.customer->id(), node_to_insert.customer->id());
+				Time time_to_reach_node_to_insert = std::max(prec_to_node_to_insert.arrival, prec_to_node_to_insert.customer->open())
+					+ distance;
+
+				if (time_to_reach_node_to_insert > node_to_insert.customer->open() &&												// Intervalle temps
+					time_to_reach_node_to_insert < node_to_insert.customer->close() &&
+
+					ws_.is_feasible(prec_to_node_to_insert, node_to_insert.customer->demand(), std::max(distance,node_to_insert.customer->open())))
+				{
+					std::cout << "HERE : " << prec_to_node_to_insert.arrival << " " << time_to_reach_node_to_insert << std::endl;
+					ws_.remove(node_to_insert);
+					// ajout dans les points taites
+					already_done.push_back(node_to_insert.customer->id());
+
+					// mise a jout du point a inserer
+					node_to_insert.route = prec_to_node_to_insert.route;
+					node_to_insert.arrival = NO_TIME;
+					node_to_insert.load = NO_LOAD;
+
+					ws_.insert(prec_to_node_to_insert, node_to_insert);
+
+					//Mise a jour des autres clients
+					//ws_.update2(*prev);
+					ws_.update2(prec_to_node_to_insert);
+					std::cout << std::endl;
+					ws_.display();
+					ws_.check();
+
+					retour = true;
+				}
+			}
+		}
+	}
+
+	return retour;
 }
 
 bool recherche_locale::cross() {
