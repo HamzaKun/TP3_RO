@@ -65,6 +65,10 @@ bool recherche_locale::two_opt_etoile_cp() {
 					if ( (arrivalTime < y_first_node->customer->close()) && (arrivalTime > y_first_node->customer->open())) {
 						new_w.append((*x), (*y_first_node));				// Concaténation des routes
 						new_w.update2((*x_node));							// Mise à jour des informations
+						
+						//y->depot.next = &(y->depot);	y->depot.prev = &(y->depot);
+						//new_w.close_route((*y));							// Fermer la route
+
 						retour = true;
 					}
 				}
@@ -76,6 +80,7 @@ bool recherche_locale::two_opt_etoile_cp() {
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
 		ws_ = new_w;
+		ws_.check();
 	}
 
 	return retour;
@@ -90,11 +95,9 @@ bool recherche_locale::two_opt_etoile() {
 
 	for each (NodeInfo a in new_w.nodes())
 	{
-		std::cout << "a : Node " << a.customer->id() << "sur 100" << std::endl;
 		if (a.customer->id() != new_w.data().depot()) {						// Si a n'est pas un dépôt
 			for each (NodeInfo b in new_w.nodes())
 			{
-				std::cout << "b : Node " << b.customer->id() << "sur 100" << std::endl;
 				// On vérifie que a et b ne soient pas sur la même route et que b n'est pas le dépôt
 				if (a.route != b.route && b.customer->id() != new_w.data().depot()) {
 					// Premier gain potentiel : (a -> a') - (a -> b')
