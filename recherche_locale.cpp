@@ -45,7 +45,8 @@ bool recherche_locale::two_opt_etoile_cp() {
 
 	NodeInfo * x_node;
 	NodeInfo * y_depot;
-	NodeInfo * y_first_node;
+	NodeInfo * y_node;
+	NodeInfo * y_node_next;
 
 	std::cout << "Lancement de 2-opt-* cas particulier" << std::endl;
 
@@ -54,30 +55,31 @@ bool recherche_locale::two_opt_etoile_cp() {
 		for (RouteInfo * y = new_w.first(); y != nullptr; y = y->next_) {	// Pour chaque autre route
 			if (x != y) {													// Si on a pas affaire à la même route
 				x_node = x->depot.prev;										// Dernier point de la route x
-				y_depot = &(x->depot);										// Dépôt de la route y
-				y_first_node = y_depot->next;								// Premier point de la route y
+				y_depot = &(y->depot);										// Dépôt de la route y
+				y_node = y_depot->next;										// Premier point de la route y
 
 				// Vérification de la charge
-				if (x_node->load + y_depot->load < new_w.data().fleetCapacity()) {
-					// Vérification de la fenêtre de temps : calcul de la distance
-					Time arrivalTime = x_node->arrival + new_w.data().distance(x_node->customer->id(), y_first_node->customer->id());
-					
-					if ( (arrivalTime < y_first_node->customer->close()) && (arrivalTime > y_first_node->customer->open())) {
+				if (new_w.is_feasible((*y_node), x->depot.load, x->depot.arrival)) {
 
-						std::cout << "Concatenation de " << y->id << "a la suite de " << x->id << std::endl; 
+					std::cout << "Concatenation de " << y->id << " a la suite de " << x->id << std::endl;
 
-						// Concaténation de deux routes (les tests sont faits)
-						new_w.append((*x), (*y_first_node));				// Ajout du premier point à la fin
-						x->depot.prev = y->depot.prev;						// Mise à jour du dernier point de x
-						x->depot.prev->next = &(x->depot);
-						new_w.update2((*x_node));							// Mise à jour des informations
-						
-						y->depot.next = &(y->depot);						// On clean la route y
-						y->depot.prev = &(y->depot);
-						new_w.close_route((*y));							// Fermer la route
-
-						retour = true;
+					// Concaténation de deux routes (les tests sont faits)
+					while (y_node->customer->id() != new_w.data().depot()) {
+						y_node_next = y_node->next;
+						new_w.append((*x), (*y_node));
+						y_node = y_node_next;
 					}
+
+					// Triche pour "vider" la route
+					y->depot.next = &(y->depot);						// On clean la route y
+					y->depot.prev = &(y->depot);
+
+					RouteInfo * y_prev = y->prev_;
+
+					new_w.close_route((*y));							// Fermer la route
+
+					y = y_prev;
+					retour = true;
 				}
 			}
 		}
@@ -87,8 +89,8 @@ bool recherche_locale::two_opt_etoile_cp() {
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
 		new_w.display();
+		new_w.check();														// Appel du check
 		ws_ = new_w;
-		ws_.check();
 	}
 
 	return retour;
@@ -150,6 +152,7 @@ bool recherche_locale::two_opt_etoile() {
 		std::cout << "two_opt_etoile cas general :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
+		new_w.check();
 		ws_ = new_w;
 	}
 

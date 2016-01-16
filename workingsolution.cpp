@@ -611,11 +611,11 @@ void WorkingSolution::do_merge (const Arc & arc)
 void WorkingSolution::close_route (RouteInfo & route)
 {
   NodeInfo * depotptr = &(route.depot);
-	NodeInfo * prev = depotptr->prev;
-	NodeInfo * next = depotptr->next;
+  NodeInfo * prev = depotptr->prev;
+  NodeInfo * next = depotptr->next;
   assert((depotptr->prev == depotptr) && (depotptr->next == depotptr) && "non-empty route");
 
-  if (route.prev_ == NO_ROUTE)
+  if (route.prev_ == NO_ROUTE)					// Cas de la tête
   {
     first_ = route.next_;
   }
@@ -623,7 +623,7 @@ void WorkingSolution::close_route (RouteInfo & route)
   {
     route.prev_->next_ = route.next_;
   }
-  if (route.next_ == NO_ROUTE)
+  if (route.next_ == NO_ROUTE)					// Cas de la fin
   {
     last_ = route.prev_;
   }
@@ -636,6 +636,7 @@ void WorkingSolution::close_route (RouteInfo & route)
   free_ = &route;
 
   --nb_routes_;
+  total_distance_ -= route.distance;
 }
 
 
@@ -755,7 +756,6 @@ void WorkingSolution::display2() {
 	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
 }
 
-
 bool operator< (const WorkingSolution & s1, const WorkingSolution & s2)
 {
   return ((s1.nb_routes() < s2.nb_routes()) || ((s1.nb_routes() == s2.nb_routes()) && (s1.distance() < s2.distance())));
@@ -780,7 +780,7 @@ void RouteInfo::display() {
 
 	while (n->customer->id() != depot.customer->id())
 	{
-		std::cout << "> " << n->name << " " << n->customer->id();
+		std::cout << "> " << n->arrival << " " << n->customer->id();
 		n = n->next;
 	}
 	std::cout << std::endl;
