@@ -17,7 +17,7 @@ public:
 
 	// Méthode
 	void construction_par_insertion();						// Construction de la solution
-	bool recherche_meilleur_client(NodeInfo*, Time, Load ,NodeInfo*);
+	bool recherche_meilleur_client(NodeInfo*, Time, Load ,Id*);
 
 
 	const NodeInfo *  depot() const { return depot_; }
