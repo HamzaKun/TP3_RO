@@ -176,7 +176,6 @@ bool recherche_locale::two_opt_etoile() {
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
 		ws_ = new_w;
 	}
-	}
 
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
 		std::cout << "two_opt_etoile cas general :" << std::endl;
@@ -253,6 +252,7 @@ bool recherche_locale::ot_opt_cp() {
 
 	return retour;
 }
+
 bool recherche_locale::ot_opt() {
 	
 	std::vector<Id> already_done; // vecteur contenant les points deja echange;
