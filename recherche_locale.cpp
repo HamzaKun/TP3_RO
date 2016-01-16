@@ -53,9 +53,9 @@ bool recherche_locale::two_opt_etoile_cp() {
 	for (RouteInfo * x = new_w.first(); x != nullptr; x = x->next_) {		// Pour chaque route
 		for (RouteInfo * y = new_w.first(); y != nullptr; y = y->next_) {	// Pour chaque autre route
 			if (x != y) {													// Si on a pas affaire à la même route
-				x_node = x->depot.prev;
-				y_depot = &(x->depot);
-				y_first_node = y_depot->next;
+				x_node = x->depot.prev;										// Dernier point de la route x
+				y_depot = &(x->depot);										// Dépôt de la route y
+				y_first_node = y_depot->next;								// Premier point de la route y
 
 				// Vérification de la charge
 				if (x_node->load + y_depot->load < new_w.data().fleetCapacity()) {
@@ -63,11 +63,18 @@ bool recherche_locale::two_opt_etoile_cp() {
 					Time arrivalTime = x_node->arrival + new_w.data().distance(x_node->customer->id(), y_first_node->customer->id());
 					
 					if ( (arrivalTime < y_first_node->customer->close()) && (arrivalTime > y_first_node->customer->open())) {
-						new_w.append((*x), (*y_first_node));				// Concaténation des routes
+
+						std::cout << "Concatenation de " << y->id << "a la suite de " << x->id << std::endl; 
+
+						// Concaténation de deux routes (les tests sont faits)
+						new_w.append((*x), (*y_first_node));				// Ajout du premier point à la fin
+						x->depot.prev = y->depot.prev;						// Mise à jour du dernier point de x
+						x->depot.prev->next = &(x->depot);
 						new_w.update2((*x_node));							// Mise à jour des informations
 						
-						//y->depot.next = &(y->depot);	y->depot.prev = &(y->depot);
-						//new_w.close_route((*y));							// Fermer la route
+						y->depot.next = &(y->depot);						// On clean la route y
+						y->depot.prev = &(y->depot);
+						new_w.close_route((*y));							// Fermer la route
 
 						retour = true;
 					}
@@ -79,6 +86,7 @@ bool recherche_locale::two_opt_etoile_cp() {
 		std::cout << "two_opt_etoile cas particulier :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
+		new_w.display();
 		ws_ = new_w;
 		ws_.check();
 	}
