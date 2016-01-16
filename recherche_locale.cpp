@@ -39,7 +39,7 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 		//		}
 			}	else {
 				ite_ot_opt_cp++;
-			}
+				}
 	//	}	else {
 	//		ite_two_opt_etoile_cp++;
 	//	}
@@ -77,9 +77,9 @@ bool recherche_locale::two_opt_etoile_cp() {
 	for (RouteInfo * x = new_w.first(); x != nullptr; x = x->next_) {		// Pour chaque route
 		for (RouteInfo * y = new_w.first(); y != nullptr; y = y->next_) {	// Pour chaque autre route
 			if (x != y) {													// Si on a pas affaire à la même route
-				x_node = x->depot.prev;
-				y_depot = &(x->depot);
-				y_first_node = y_depot->next;
+				x_node = x->depot.prev;										// Dernier point de la route x
+				y_depot = &(x->depot);										// Dépôt de la route y
+				y_first_node = y_depot->next;								// Premier point de la route y
 
 				// Vérification de la charge
 				if (x_node->load + y_depot->load < new_w.data().fleetCapacity()) {
@@ -87,22 +87,30 @@ bool recherche_locale::two_opt_etoile_cp() {
 					Time arrivalTime = x_node->arrival + new_w.data().distance(x_node->customer->id(), y_first_node->customer->id());
 					
 					if ( (arrivalTime < y_first_node->customer->close()) && (arrivalTime > y_first_node->customer->open())) {
-						new_w.append((*x), (*y_first_node));				// Concaténation des routes
+
+						std::cout << "Concatenation de " << y->id << "a la suite de " << x->id << std::endl; 
+
+						// Concaténation de deux routes (les tests sont faits)
+						new_w.append((*x), (*y_first_node));				// Ajout du premier point à la fin
+						x->depot.prev = y->depot.prev;						// Mise à jour du dernier point de x
+						x->depot.prev->next = &(x->depot);
 						new_w.update2((*x_node));							// Mise à jour des informations
 						
-						//y->depot.next = &(y->depot);	y->depot.prev = &(y->depot);
-						//new_w.close_route((*y));							// Fermer la route
+						y->depot.next = &(y->depot);						// On clean la route y
+						y->depot.prev = &(y->depot);
+						new_w.close_route((*y));							// Fermer la route
 
 						retour = true;
 					}
-				}
 			}
 		}
 	}
+}
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
 		std::cout << "two_opt_etoile cas particulier :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
 		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
+		new_w.display();
 		ws_ = new_w;
 		ws_.check();
 	}
@@ -120,46 +128,54 @@ bool recherche_locale::two_opt_etoile() {
 	for each (NodeInfo a in new_w.nodes())
 	{
 		if (a.customer->id() != new_w.data().depot()) {						// Si a n'est pas un dépôt
-			for each (NodeInfo b in new_w.nodes())
-			{
+		for each (NodeInfo b in new_w.nodes())
+		{
 				// On vérifie que a et b ne soient pas sur la même route et que b n'est pas le dépôt
 				if (a.route != b.route && b.customer->id() != new_w.data().depot()) {
-					// Premier gain potentiel : (a -> a') - (a -> b')
-					Time a_b2 = new_w.data().distance(a.customer->id(), b.next->customer->id());
-					Time b_a2 = new_w.data().distance(b.customer->id(), a.next->customer->id());
+				// Premier gain potentiel : (a -> a') - (a -> b')
+				Time a_b2 = new_w.data().distance(a.customer->id(), b.next->customer->id());
+				Time b_a2 = new_w.data().distance(b.customer->id(), a.next->customer->id());
 
-					Time gain = new_w.data().distance(a.customer->id(), a.next->customer->id()) - a_b2;
-					// Second gain potentiel : (b -> b') - (b -> a')
-					gain += new_w.data().distance(b.customer->id(), b.next->customer->id()) - b_a2;
-					if (gain > 0) {
-						// Vérification de la charge :
-						Load c1 = b.route->depot.load - b.load + a.load;
-						Load c2 = a.route->depot.load - a.load + b.load;
-						if (c1 < new_w.data().fleetCapacity() && c2 < new_w.data().fleetCapacity()) {
-							// Vérification de la fenêtre de temps, premier changement :
-							if ((a.arrival + a_b2 < b.next->customer->close()) && (a.arrival + a_b2 > b.next->customer->open())) {
-								if ((b.arrival + b_a2 < a.next->customer->close()) && (b.arrival + b_a2 > a.next->customer->open())) {
+				Time gain = new_w.data().distance(a.customer->id(), a.next->customer->id()) - a_b2;
+				// Second gain potentiel : (b -> b') - (b -> a')
+				gain += new_w.data().distance(b.customer->id(), b.next->customer->id()) - b_a2;
+				if (gain > 0) {
+					// Vérification de la charge :
+					Load c1 = b.route->depot.load - b.load + a.load;
+					Load c2 = a.route->depot.load - a.load + b.load;
+					if (c1 < new_w.data().fleetCapacity() && c2 < new_w.data().fleetCapacity()) {
+						// Vérification de la fenêtre de temps, premier changement :
+						if ((a.arrival + a_b2 < b.next->customer->close()) && (a.arrival + a_b2 > b.next->customer->open())) {
+							if ((b.arrival + b_a2 < a.next->customer->close()) && (b.arrival + b_a2 > a.next->customer->open())) {
 
 									std::cout << "Lapin ! " << std::endl;
-									// On fait le 2-opt *
-									// Permutation
-									NodeInfo * tmp = a.next;					// On fait une permutation, obligé d'utiliser une variable temporaire
+								// On fait le 2-opt *
+								// Permutation
+								NodeInfo * tmp = a.next;					// On fait une permutation, obligé d'utiliser une variable temporaire
 									// TODO : vérifier que les next ne sont pas les dépôts
-									a.next = b.next;
-									b.next = tmp;
+								a.next = b.next;
+								b.next = tmp;
 
-									// Update des données :
+								// Update des données :
 									new_w.update2(a);							// TODO : problème ici
-									new_w.update2(b);
+								new_w.update2(b);
 
-									retour = true;
-								}
+								retour = true;
 							}
 						}
 					}
 				}
 			}
 		}
+		}
+	}
+
+	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
+		std::cout << "two_opt_etoile cas general :" << std::endl;
+		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
+		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
+		ws_ = new_w;
+	}
 	}
 
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
@@ -241,7 +257,7 @@ bool recherche_locale::ot_opt() {
 	
 	std::vector<Id> already_done; // vecteur contenant les points deja echange;
 	bool retour = false;
-
+	
 	Time old_gain = 0;
 	
 	//insertion d'un node dans une nouvelle tournee
