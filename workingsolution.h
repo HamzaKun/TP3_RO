@@ -37,6 +37,9 @@ struct RouteInfo
 
 		RouteInfo(const Id id, const NodeInfo depot, RouteInfo * prev = nullptr, RouteInfo * next = nullptr) 
 	:id(id), depot(depot), distance(0), prev_(prev), next_(next) { }
+
+		void display();
+		void display2(const Data & data);
 };
 
 typedef std::vector<RouteInfo> Rvector;
@@ -85,11 +88,11 @@ class WorkingSolution
     void do_merge (const Arc &);										// Intègre l'arc dans le graphe ?
 
     bool is_feasible (NodeInfo &, const Load &, const Time &) const;	// Vérifie si une configuration est possible
-		bool is_feasible(NodeInfo & node, RouteInfo & route, const Load & incr_capa, const Time & incr_time) const;
     void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 
 		void display();
+		void display2();
 
 	// Getters/Setters
     const Data &      data      () const {return data_;}

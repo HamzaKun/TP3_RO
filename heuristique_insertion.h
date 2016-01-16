@@ -19,6 +19,7 @@ public:
 	void construction_par_insertion();						// Construction de la solution
 	bool recherche_meilleur_client(NodeInfo*, Time, Load ,NodeInfo*);
 
+
 	const NodeInfo *  depot() const { return depot_; }
 	NodeInfo *			  depot() { return depot_; }
 };
