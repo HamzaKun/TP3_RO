@@ -276,7 +276,7 @@ bool recherche_locale::ot_opt() {
 				Time time_to_reach_node_to_insert = std::max(prec_to_node_to_insert.arrival, prec_to_node_to_insert.customer->open())
 					+ distance;
 
-				if (gain>0 &&
+				if (gain>0 && old_gain>gain && 
 					
 					time_to_reach_node_to_insert > node_to_insert.customer->open() &&												// Intervalle temps
 					time_to_reach_node_to_insert < node_to_insert.customer->close() &&
