@@ -13,7 +13,7 @@ public:
 	recherche_locale(WorkingSolution& ws);		// Appel de tous les algos dans le constructeur
 	~recherche_locale() {}
 
-	std::vector<NodeInfo *> recherche_node_fenetre_temps(const NodeInfo& node_cur);
+	std::vector<Id> recherche_node_fenetre_temps(const NodeInfo& node_cur);
 	std::vector<RouteInfo*> get_all_unique_route();
 		
 	// Algos RL
@@ -23,7 +23,6 @@ public:
 	bool ot_opt();										//Cas general (appel cas particulier)
 	bool cross();											//Cas general
 
-	bool test_cap();
-	bool test_temps();
+	void swap(NodeInfo & a, NodeInfo & b);
 };
 
