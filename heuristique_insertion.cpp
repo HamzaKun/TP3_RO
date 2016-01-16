@@ -36,31 +36,23 @@ void heuristique_insertion::construction_par_insertion()
 
 		if (c_free_.size() <= 0) break;
 
-		NodeInfo* cur_node= new NodeInfo;
+		Id* cur_id= new Id;
 		
-		while (recherche_meilleur_client(prec_node, std::max(prec_node->arrival,prec_node->customer->open()), prec_node->load, cur_node)) {	// tant que l'on trouve un client
+		while (recherche_meilleur_client(prec_node, std::max(prec_node->arrival,prec_node->customer->open()), prec_node->load, cur_id)) {	// tant que l'on trouve un client
 			
-			append(cur_route, *cur_node);
+			append(cur_route, nodes_[*cur_id]);
 
 			if (c_free_.size() <= 0) break;
 			
-			cur_node->name = "next";
-			prec_node = cur_node;				// On incrémente
-			cur_node = new NodeInfo;
-		}
-	}
-	// On met a jour nodes_
-	for (RouteInfo* r = first_; r != nullptr;r=r->next_)
-	{
-		for (NodeInfo* n = r->depot.next; n->customer->id() != r->depot.customer->id(); n=n->next)
-		{
-			nodes_[n->customer->id()] = *n;
+			nodes_[*cur_id].name = "next";
+			prec_node = &nodes_[*cur_id];				// On incrémente
+			cur_id = new Id;
 		}
 	}
 }
 
 // TODO Il faudrait renvoyer un booleen avec cette fonction vrai si une nouvel ele est trouve faux sinon et stocke ledit ele dans un parametre
-bool heuristique_insertion::recherche_meilleur_client(NodeInfo* last_node, Time distance_already_run, Load load_charged, NodeInfo* res) {
+bool heuristique_insertion::recherche_meilleur_client(NodeInfo* last_node, Time distance_already_run, Load load_charged, Id* cur_id) {
 	bool node_trouve = false;
 	Time cur_distance;
 	
@@ -102,7 +94,7 @@ bool heuristique_insertion::recherche_meilleur_client(NodeInfo* last_node, Time 
 		}
 
 		//On donne le pointeur a res et on le supprime de c_free_
-		*res = *best_node;
+		*cur_id = best_node->customer->id();
 		c_free_.erase(c_free_.begin() + index_best_node);
 	}
 	return node_trouve;
