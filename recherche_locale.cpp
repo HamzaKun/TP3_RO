@@ -6,23 +6,47 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 	//dabord cas particulier 2opt* et oropt
 	//puis 2opt* et cross
 	bool fin = false;
+	int nb_route = ws_.nb_routes();
+
+	const int MAX_ITE = 10;
+
+	int ite_two_opt_etoile_cp = 0;
+	int ite_two_opt_etoile = 0;
+	int ite_ot_opt_cp = 0;
+	int ite_ot_opt = 0;
+	int ite_cross = 0;
 
 	while (!fin) {
-		if (!two_opt_etoile_cp()) {
-			//if (!ot_opt_cp()) {
-				if (!two_opt_etoile()) {
-				//	if (!ot_opt()) {
-						//if (!cross()) {
+	//	std::cout << "2opt*cp, Nb route :" << ws_.nb_routes() << std::endl;
+	//	if (!two_opt_etoile_cp() || ite_two_opt_etoile_cp >= MAX_ITE) {
+			std::cout << "otoptcp, Nb route :" << ws_.nb_routes() << std::endl;
+			if (!(ot_opt_cp() && ite_ot_opt_cp < MAX_ITE)) {
+	//			std::cout << "2opt*, Nb route :" << ws_.nb_routes() << std::endl;
+	//			if (!two_opt_etoile() || ite_two_opt_etoile >= MAX_ITE) {
+					std::cout << "otopt, Nb route :" << ws_.nb_routes() << std::endl;
+					if (!(ot_opt() && ite_ot_opt < MAX_ITE)) {
+						std::cout << "cross, Nb route :" << ws_.nb_routes() << std::endl;
+						if (!(cross() && ite_cross < MAX_ITE)) {
 							fin = true;
-						//}
-					//}
+						}	else {
+							ite_cross++;
+						}
+					}	else {
+						ite_ot_opt++;
+					}
+		//		}	else {
+		//			ite_two_opt_etoile++;
+		//		}
+			}	else {
+				ite_ot_opt_cp++;
 				}
-			//}
-		}
+	//	}	else {
+	//		ite_two_opt_etoile_cp++;
+	//	}
 	}
 
-	/*recherche_node_fenetre_temps(ws_.nodes()[1]);
-	std::vector<RouteInfo*> vect_r = get_all_unique_route();*/
+	//recherche_node_fenetre_temps(ws_.nodes()[1]);
+	//std::vector<RouteInfo*> vect_r = get_all_unique_route();
 
 	//std::cout << "Appel get_all_unique_route" << std::endl;
 	//for (int i = 0;i < vect_r.size();i++) {
@@ -84,6 +108,7 @@ bool recherche_locale::two_opt_etoile_cp() {
 			}
 		}
 	}
+
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
 		std::cout << "two_opt_etoile cas particulier :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
@@ -108,8 +133,8 @@ bool recherche_locale::two_opt_etoile() {
 		if (a.customer->id() != new_w.data().depot()) {						// Si a n'est pas un dépôt
 			for each (NodeInfo b in new_w.nodes())
 			{
-				// On vérifie que a et b ne soient pas sur la même route et que b n'est pas le dépôt
-				if (a.route != b.route && b.customer->id() != new_w.data().depot()) {
+					// On vérifie que a et b ne soient pas sur la même route et que b n'est pas le dépôt
+					if (a.route != b.route && b.customer->id() != new_w.data().depot()) {
 					// Premier gain potentiel : (a -> a') - (a -> b')
 					Time a_b2 = new_w.data().distance(a.customer->id(), b.next->customer->id());
 					Time b_a2 = new_w.data().distance(b.customer->id(), a.next->customer->id());
@@ -126,16 +151,16 @@ bool recherche_locale::two_opt_etoile() {
 							if ((a.arrival + a_b2 < b.next->customer->close()) && (a.arrival + a_b2 > b.next->customer->open())) {
 								if ((b.arrival + b_a2 < a.next->customer->close()) && (b.arrival + b_a2 > a.next->customer->open())) {
 
-									std::cout << "Lapin ! " << std::endl;
+										std::cout << "Lapin ! " << std::endl;
 									// On fait le 2-opt *
 									// Permutation
 									NodeInfo * tmp = a.next;					// On fait une permutation, obligé d'utiliser une variable temporaire
-									// TODO : vérifier que les next ne sont pas les dépôts
+										// TODO : vérifier que les next ne sont pas les dépôts
 									a.next = b.next;
 									b.next = tmp;
 
 									// Update des données :
-									new_w.update2(a);							// TODO : problème ici
+										new_w.update2(a);							// TODO : problème ici
 									new_w.update2(b);
 
 									retour = true;
@@ -168,14 +193,12 @@ bool recherche_locale::ot_opt_cp() {
 
 	// Parcours des clients seuls
 	for (int i = 0;i < vect_road_clients_uniques.size();i++) {
-		std::cout << ((float)i * 100.0) / (float)vect_road_clients_uniques.size() << "%" << std::endl;
 		NodeInfo* client_unique = vect_road_clients_uniques[i]->depot.next;
 		
 		bool client_insere = false;
 
 		//Parcours des autres routes
 		for (RouteInfo* route_cur = ws_.first(); !client_insere && route_cur != nullptr; route_cur = route_cur->next_) {
-			std::cout << "-";
 			if (std::find(vect_road_clients_uniques.begin(), vect_road_clients_uniques.end(), route_cur) == vect_road_clients_uniques.end()) {	//Si la route courante n'est pas une route a client unique
 				
 				NodeInfo * cur_node = &(route_cur->depot);
@@ -185,6 +208,7 @@ bool recherche_locale::ot_opt_cp() {
 				//Parcours des clients de la route
 				while ((cont || cur_node->customer->id() != route_cur->depot.customer->id()) && !client_insere){
 					cont = false;
+					
 					Time distance = ws_.data().distance(client_unique->customer->id(), cur_node->customer->id());
 					Time time_to_reach_unique_client = std::max(cur_node->arrival, cur_node->customer->open()) 
 						+ distance;
@@ -193,7 +217,7 @@ bool recherche_locale::ot_opt_cp() {
 					if (time_to_reach_unique_client > client_unique->customer->open() &&																								//Intervalle temps
 						time_to_reach_unique_client < client_unique->customer->close() &&
 
-						ws_.is_feasible(*cur_node, client_unique->customer->demand(), std::max(distance, client_unique->customer->open())))
+						ws_.is_feasible(*cur_node, client_unique->customer->demand(), time_to_reach_unique_client-cur_node->arrival))
 					{		//test temps et capacite
 																									// On supprime le client inutil
 						ws_.remove(*client_unique);						// Supprime egalement la tournee
@@ -207,28 +231,31 @@ bool recherche_locale::ot_opt_cp() {
 
 						//Mise a jour des autres clients
 						ws_.update2(*cur_node);
-						std::cout << std::endl;
 					//	ws_.display2();
 						ws_.check();
 
 						client_insere = true;
 						retour = true;
+
+						std::cout << client_unique->customer->id() << " insert after " << cur_node->customer->id() << std::endl;
 					}
 					cur_node = cur_node->next;
 				}
 			}
 		}
-		std::cout << std::endl;
 	}
 	//melange au sein d'une meme tournee
 	//swap a et b voisin
 
 	return retour;
 }
+
 bool recherche_locale::ot_opt() {
 	
 	std::vector<Id> already_done; // vecteur contenant les points deja echange;
 	bool retour = false;
+	
+	Time old_gain = 0;
 	
 	//insertion d'un node dans une nouvelle tournee
 	for (int i = 1; i < ws_.nodes().size(); i++) {
@@ -240,16 +267,19 @@ bool recherche_locale::ot_opt() {
 				NodeInfo& node_to_insert = ws_.nodes()[i];
 				NodeInfo& prec_to_node_to_insert = ws_.nodes()[j];
 
+				Time gain = ws_.data().distance(prec_to_node_to_insert.prev->customer->id(), prec_to_node_to_insert.customer->id()) 
+					- ws_.data().distance(node_to_insert.customer->id(), prec_to_node_to_insert.customer->id());
 				Time distance = ws_.data().distance(prec_to_node_to_insert.customer->id(), node_to_insert.customer->id());
 				Time time_to_reach_node_to_insert = std::max(prec_to_node_to_insert.arrival, prec_to_node_to_insert.customer->open())
 					+ distance;
 
-				if (time_to_reach_node_to_insert > node_to_insert.customer->open() &&												// Intervalle temps
+				if (gain>0 && old_gain>gain && 
+					
+					time_to_reach_node_to_insert > node_to_insert.customer->open() &&												// Intervalle temps
 					time_to_reach_node_to_insert < node_to_insert.customer->close() &&
 
-					ws_.is_feasible(prec_to_node_to_insert, node_to_insert.customer->demand(), std::max(distance,node_to_insert.customer->open())))
+					ws_.is_feasible(prec_to_node_to_insert, node_to_insert.customer->demand(), time_to_reach_node_to_insert - prec_to_node_to_insert.arrival))
 				{
-					std::cout << "HERE : " << prec_to_node_to_insert.arrival << " " << time_to_reach_node_to_insert << std::endl;
 					ws_.remove(node_to_insert);
 					// ajout dans les points taites
 					already_done.push_back(node_to_insert.customer->id());
@@ -264,10 +294,11 @@ bool recherche_locale::ot_opt() {
 					//Mise a jour des autres clients
 					//ws_.update2(*prev);
 					ws_.update2(prec_to_node_to_insert);
-					std::cout << std::endl;
-					ws_.display();
+				//	ws_.display();
 					ws_.check();
 
+					std::cout << node_to_insert.customer->id() << " insert after " << prec_to_node_to_insert.customer->id() << " gain:" << gain << std::endl;
+					old_gain = gain;
 					retour = true;
 				}
 			}
@@ -279,8 +310,77 @@ bool recherche_locale::ot_opt() {
 
 bool recherche_locale::cross() {
 	//Echange de 2 points dans 2 tournees differentes
+	bool modification = false;
+	for each (NodeInfo a in ws_.nodes())
+	{
+		for each (NodeInfo b in ws_.nodes())
+		{
+			/*std::vector<Id> a_possibles = recherche_node_fenetre_temps(a);
+			std::vector<Id> b_possibles = recherche_node_fenetre_temps(b);*/
 
-	return false;
+			if (a.customer->id() != b.customer->id() && a.customer->id() != 0 && b.customer->id() != 0) {
+				NodeInfo& a_temp = ws_.nodes()[a.customer->id()];
+				NodeInfo& b_temp = ws_.nodes()[b.customer->id()];
+
+				Time gain = ws_.data().distance(b_temp.prev->customer->id(), b_temp.customer->id());
+				gain -= ws_.data().distance(a_temp.customer->id(), b_temp.customer->id());
+				gain += ws_.data().distance(a_temp.prev->customer->id(), a_temp.customer->id());
+				gain -= ws_.data().distance(b_temp.customer->id(), a_temp.customer->id());
+
+				Time distance_a = ws_.data().distance(b_temp.prev->customer->id(), a_temp.customer->id());
+				Time time_to_reach_node_to_insert_a = std::max(b_temp.prev->arrival, a_temp.customer->open())
+					+ distance_a;
+
+				Time distance_b = ws_.data().distance(a_temp.prev->customer->id(), b_temp.customer->id());
+				Time time_to_reach_node_to_insert_b = std::max(a_temp.prev->arrival, b_temp.customer->open())
+					+ distance_b;
+
+				if ((gain>0 &&
+					
+					time_to_reach_node_to_insert_a > a_temp.customer->open() &&												// Intervalle temps
+					time_to_reach_node_to_insert_a < a_temp.customer->close() &&
+
+					ws_.is_feasible(*b_temp.prev, a_temp.customer->demand(), time_to_reach_node_to_insert_a - b_temp.prev->arrival)) 
+					
+					&& 
+					
+					(time_to_reach_node_to_insert_b > b_temp.customer->open() &&												// Intervalle temps
+					time_to_reach_node_to_insert_b < b_temp.customer->close() &&
+
+					ws_.is_feasible(*a_temp.prev, b_temp.customer->demand(), time_to_reach_node_to_insert_b - a_temp.prev->arrival))					
+					){
+						swap(a_temp, b_temp);
+						ws_.check();
+						
+						std::cout << a_temp.customer->id() << " swaped with " << b_temp.customer->id() << " gain:" << gain << std::endl;
+
+						modification = true;
+				}
+			}
+		}
+	}
+	return modification;
+}
+
+void recherche_locale::swap(NodeInfo& a, NodeInfo& b) {
+	NodeInfo* prev_a = a.prev;
+	NodeInfo* next_a = a.next;
+
+	NodeInfo* prev_b = b.prev;
+	NodeInfo* next_b = b.next;
+
+	if (next_a->customer->id() != 0 && next_b->customer->id() !=0 ) {
+
+		ws_.remove(a);
+		ws_.remove(b);
+
+		ws_.insert(*prev_a, b);
+
+		ws_.insert(*prev_b, a);
+	}
+	else {
+		std::cout << "Swap fails" << std::endl;
+	}
 }
 
 //retourne toutes les routes ayant un unique client
@@ -294,9 +394,9 @@ std::vector<RouteInfo*> recherche_locale::get_all_unique_route() {
 	return res;
 }
 
-std::vector<NodeInfo *> recherche_locale::recherche_node_fenetre_temps(const NodeInfo& given_node) {
+std::vector<Id> recherche_locale::recherche_node_fenetre_temps(const NodeInfo& given_node) {
 	bool DEBUG = false;
-	std::vector<NodeInfo *> res;
+	std::vector<Id> res;
 	if (DEBUG) {
 		std::cout << "For " << given_node.customer->id() << " open:" << given_node.customer->open() 
 			<< " and close:" << given_node.customer->close() << std::endl;
@@ -319,19 +419,8 @@ std::vector<NodeInfo *> recherche_locale::recherche_node_fenetre_temps(const Nod
 				std::cout << " Close range: " << given_node.customer->close() - FENETRE_TEMPS << " " << ws_.nodes()[i].customer->close()
 					<< " " << given_node.customer->close() + FENETRE_TEMPS << std::endl;
 			}
-			res.push_back(&(ws_.nodes()[i]));
+			res.push_back(ws_.nodes()[i].customer->id());
 		}
 	}
 	return res;
-}
-
-
-
-bool recherche_locale::test_cap() {
-	//TODO
-	return false;
-}
-bool recherche_locale::test_temps() {
-	//TODO
-	return false;
 }

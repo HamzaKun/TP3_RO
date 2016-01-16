@@ -66,7 +66,7 @@ void test_solution (const Data & data, const BKR & bkr)
 // main function
 int main (int argc, char * argv[])
 {
-  std::string filename("INSTANCES/c103.txt");
+  std::string filename("INSTANCES/r201.txt");
 
   // check the command line
   if (argc > 2)
@@ -103,6 +103,7 @@ int main (int argc, char * argv[])
 	recherche_locale rl(h_insertion);
 
 	std::cout << " Rech loc" << std::endl;
+	h_insertion.check();
 	h_insertion.display();
 
 
