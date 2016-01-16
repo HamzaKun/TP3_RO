@@ -66,7 +66,7 @@ void test_solution (const Data & data, const BKR & bkr)
 // main function
 int main (int argc, char * argv[])
 {
-  std::string filename("INSTANCES/r101.txt");
+  std::string filename("INSTANCES/c103.txt");
 
   // check the command line
   if (argc > 2)
