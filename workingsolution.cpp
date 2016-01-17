@@ -762,7 +762,6 @@ bool operator< (const WorkingSolution & s1, const WorkingSolution & s2)
   return ((s1.nb_routes() < s2.nb_routes()) || ((s1.nb_routes() == s2.nb_routes()) && (s1.distance() < s2.distance())));
 }
 
-
 std::ostream & operator<< (std::ostream & os, const WorkingSolution & sol)
 {
   os << "solution: " << sol.nb_routes() << " routes, total distance " << sol.distance() << " cpu = " << sol.cpu_time() << " s\n";

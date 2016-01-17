@@ -31,7 +31,7 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 	//					}	else {
 	//						ite_cross++;
 	//					}
-					}	else {
+						}	else {
 						ite_ot_opt++;
 					}
 		//		}	else {
@@ -83,9 +83,10 @@ bool recherche_locale::two_opt_etoile_cp() {
 				y_node = y_depot->next;										// Premier point de la route y
 
 				// Vérification de la charge
-				if (new_w.is_feasible((*y_node), x->depot.load, x->depot.arrival)) {
+				Time diff = x->depot.arrival + new_w.data().distance(x_node->customer->id(), y_node->customer->id())
+					- new_w.data().distance(y_node->route->depot.customer->id(), y_node->customer->id());
 
-					std::cout << "Concatenation de " << y->id << " a la suite de " << x->id << std::endl;
+				if (new_w.is_feasible((*y_node), x->depot.load, diff)) {
 
 					// Concaténation de deux routes (les tests sont faits)
 					while (y_node->customer->id() != new_w.data().depot()) {
@@ -95,12 +96,12 @@ bool recherche_locale::two_opt_etoile_cp() {
 					}
 
 					// Triche pour "vider" la route
-					y->depot.next = &(y->depot);						// On clean la route y
+					y->depot.next = &(y->depot);							// On clean la route y
 					y->depot.prev = &(y->depot);
 
 					RouteInfo * y_prev = y->prev_;
 
-					new_w.close_route((*y));							// Fermer la route
+					new_w.close_route((*y));								// Fermer la route
 
 					y = y_prev;
 					retour = true;
@@ -112,8 +113,7 @@ bool recherche_locale::two_opt_etoile_cp() {
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
 		std::cout << "two_opt_etoile cas particulier :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
-		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
-		new_w.display();
+		std::cout << "Apres : " << new_w.nb_routes() << " routes" << std::endl;
 		new_w.check();														// Appel du check
 		ws_ = new_w;
 	}
@@ -126,46 +126,71 @@ bool recherche_locale::two_opt_etoile() {
 	bool retour = false;													// Par défaut on retourne faux
 	WorkingSolution new_w(ws_);												// Création d'une nouvelle solution
 
-	std::cout << "Lancement de 2-opt-* cas general" << std::endl;
+	NodeInfo * a = nullptr;
+	NodeInfo * b = nullptr;
+	NodeInfo * a2 = nullptr;
+	NodeInfo * b2 = nullptr;
 
-	for each (NodeInfo a in new_w.nodes())
-	{
-		if (a.customer->id() != new_w.data().depot()) {						// Si a n'est pas un dépôt
-			for each (NodeInfo b in new_w.nodes())
-			{
-					// On vérifie que a et b ne soient pas sur la même route et que b n'est pas le dépôt
-					if (a.route != b.route && b.customer->id() != new_w.data().depot()) {
+	std::cout << "Lancement de 2-opt-* cas general : " << std::endl;
+	for (RouteInfo * x = new_w.first(); x != nullptr; x = x->next_) {					// Pour chaque route
+		for (NodeInfo * a = x->depot.next; a != &(x->depot) ; a = a->next) {			// Pour chaque point de la première route
+			for (RouteInfo * y = x->next_ ; y != nullptr; y = y->next_) {				// Pour chaque autre route
+				for (NodeInfo * b = y->depot.next; b != &(y->depot); b = b->next) {
+					a2 = a->next;		b2 = b->next;
+
+					// Calcul de distances pour calcul gain
+					Time a_a2 = new_w.data().distance(a->customer->id(), a2->customer->id());
+					Time b_b2 = new_w.data().distance(b->customer->id(), b2->customer->id());
+					Time a_b2 = new_w.data().distance(a->customer->id(), b2->customer->id());
+					Time b_a2 = new_w.data().distance(b->customer->id(), a2->customer->id());
+
 					// Premier gain potentiel : (a -> a') - (a -> b')
-					Time a_b2 = new_w.data().distance(a.customer->id(), b.next->customer->id());
-					Time b_a2 = new_w.data().distance(b.customer->id(), a.next->customer->id());
-
-					Time gain = new_w.data().distance(a.customer->id(), a.next->customer->id()) - a_b2;
+					Time gain = new_w.data().distance(a->customer->id(), a2->customer->id()) - a_b2;
 					// Second gain potentiel : (b -> b') - (b -> a')
-					gain += new_w.data().distance(b.customer->id(), b.next->customer->id()) - b_a2;
+					gain += new_w.data().distance(b->customer->id(), b2->customer->id()) - b_a2;
 					if (gain > 0) {
-						// Vérification de la charge :
-						Load c1 = b.route->depot.load - b.load + a.load;
-						Load c2 = a.route->depot.load - a.load + b.load;
-						if (c1 < new_w.data().fleetCapacity() && c2 < new_w.data().fleetCapacity()) {
-							// Vérification de la fenêtre de temps, premier changement :
-							if ((a.arrival + a_b2 < b.next->customer->close()) && (a.arrival + a_b2 > b.next->customer->open())) {
-								if ((b.arrival + b_a2 < a.next->customer->close()) && (b.arrival + b_a2 > a.next->customer->open())) {
+						if (new_w.is_feasible((*a2), b->load, b->arrival + b_a2 - b_b2)
+							&& new_w.is_feasible((*b2), a->load, a->arrival + a_b2 - a_a2)) {
 
-										std::cout << "Lapin ! " << std::endl;
-									// On fait le 2-opt *
-									// Permutation
-									NodeInfo * tmp = a.next;					// On fait une permutation, obligé d'utiliser une variable temporaire
-										// TODO : vérifier que les next ne sont pas les dépôts
-									a.next = b.next;
-									b.next = tmp;
+								NodeInfo * next_node = nullptr;
+								Nvector a_nodes;
+								Nvector b_nodes;
 
-									// Update des données :
-										new_w.update2(a);							// TODO : problème ici
-									new_w.update2(b);
-
-									retour = true;
+								// Remove des points de la route a
+								while (a2 != &(a->route->depot)) {
+									next_node = a2->next;
+									a_nodes.push_back(*a2);
+									new_w.remove(*a2);
+									a2 = next_node;
 								}
+
+								// Remove des points de la route b
+								while (b2 != &(b->route->depot)) {
+									next_node = b2->next;
+									b_nodes.push_back(*b2);
+									new_w.remove(*b2);
+									b2 = next_node;
+								}
+
+								// Ajout des points de la route a
+								for (int i = 0; i < b_nodes.size(); i++) {
+									b2 = &(b_nodes[i]);
+									new_w.append(*(a->route), *(b2));
+								}
+
+								// Ajout des points de la route b
+								for (int i = 0; i < a_nodes.size(); i++) {
+									a2 = &(a_nodes[i]);
+									new_w.append(*(b->route), *(a2));
 							}
+
+
+								// TODO : to remove : display, cout, check
+								new_w.display();
+								std::cout << "Avant le check" << std::endl;
+								new_w.check();						
+								std::cout << "Après le check" << std::endl;
+								retour = true;
 						}
 					}
 				}
@@ -176,9 +201,11 @@ bool recherche_locale::two_opt_etoile() {
 	if (retour) {															// S'il y a eu des changements on met à jour la workingsolution
 		std::cout << "two_opt_etoile cas general :" << std::endl;
 		std::cout << "Avant : " << ws_.nb_routes() << " routes" << std::endl;
-		std::cout << "Après : " << new_w.nb_routes() << " routes" << std::endl;
+		std::cout << "Apres : " << new_w.nb_routes() << " routes" << std::endl;
 		new_w.check();
 		ws_ = new_w;
+
+		std::cout << "Cas général passé avec succès !" << std::endl;
 	}
 
 	return retour;
