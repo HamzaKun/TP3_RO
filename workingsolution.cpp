@@ -744,6 +744,7 @@ void WorkingSolution::display() {
 		route_cur = route_cur->next_;
 	}
 	std::cout << "Nombre de routes utilisees = " << nb_routes_ << std::endl;
+	std::cout << "Total distance = " << total_distance_ << std::endl;
 }
 
 void WorkingSolution::display2() {
@@ -779,7 +780,7 @@ void RouteInfo::display() {
 
 	while (n->customer->id() != depot.customer->id())
 	{
-		std::cout << "> " << n->name << " " << n->customer->id();
+		std::cout << "> " << /*n->arrival << */" " << n->customer->id();
 		n = n->next;
 	}
 	std::cout << std::endl;
@@ -799,4 +800,3 @@ void RouteInfo::display2(const Data& data) {
 	}
 	std::cout << std::endl;
 }
-

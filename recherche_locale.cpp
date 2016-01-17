@@ -17,10 +17,12 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 	int ite_cross = 0;
 
 	while (!fin) {
-		//if (!two_opt_etoile_cp() || ite_two_opt_etoile_cp < MAX_ITE) {
-		//	std::cout << "otoptcp, Nb route :" << ws_.nb_routes() << std::endl;
-			//if (!(ot_opt_cp() && ite_ot_opt_cp < MAX_ITE)) {
-				if (!two_opt_etoile() || ite_two_opt_etoile >= MAX_ITE) {
+	//	std::cout << "2opt*cp, Nb route :" << ws_.nb_routes() << std::endl;
+	//	if (!two_opt_etoile_cp() || ite_two_opt_etoile_cp >= MAX_ITE) {
+			std::cout << "otoptcp, Nb route :" << ws_.nb_routes() << std::endl;
+			if (!(ot_opt_cp() && ite_ot_opt_cp < MAX_ITE)) {
+	//			std::cout << "2opt*, Nb route :" << ws_.nb_routes() << std::endl;
+	//			if (!two_opt_etoile() || ite_two_opt_etoile >= MAX_ITE) {
 					std::cout << "otopt, Nb route :" << ws_.nb_routes() << std::endl;
 					if (!(ot_opt() && ite_ot_opt < MAX_ITE)) {
 						std::cout << "cross, Nb route :" << ws_.nb_routes() << std::endl;
@@ -29,9 +31,9 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 						}	else {
 							ite_cross++;
 						}
-			//		}	else {
+		//		}	else {
 			//			ite_ot_opt++;
-			//		}
+		//		}
 			//	}	else {
 			//		ite_two_opt_etoile++;
 			//	}
@@ -40,7 +42,7 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 				}
 		}	else {
 			ite_two_opt_etoile_cp++;
-		}
+	}
 	}
 
 	//recherche_node_fenetre_temps(ws_.nodes()[1]);
@@ -180,7 +182,7 @@ bool recherche_locale::two_opt_etoile() {
 								for (int i = 0; i < a_nodes.size(); i++) {
 									a2 = &(a_nodes[i]);
 									new_w.append(*(b->route), *(a2));
-								}
+							}
 
 
 								// TODO : to remove : display, cout, check
@@ -218,7 +220,7 @@ bool recherche_locale::ot_opt_cp() {
 
 	// Parcours des clients seuls
 	for (int i = 0;i < vect_road_clients_uniques.size();i++) {
-		NodeInfo* client_unique = vect_road_clients_uniques[i]->depot.next;
+		NodeInfo* node_to_insert = vect_road_clients_uniques[i]->depot.next;
 		
 		bool client_insere = false;
 
@@ -226,45 +228,44 @@ bool recherche_locale::ot_opt_cp() {
 		for (RouteInfo* route_cur = ws_.first(); !client_insere && route_cur != nullptr; route_cur = route_cur->next_) {
 			if (std::find(vect_road_clients_uniques.begin(), vect_road_clients_uniques.end(), route_cur) == vect_road_clients_uniques.end()) {	//Si la route courante n'est pas une route a client unique
 				
-				NodeInfo * cur_node = &(route_cur->depot);
-				cur_node = cur_node->next;
-				NodeInfo * first_node = cur_node;
+				NodeInfo * prec_to_node_to_insert = &(route_cur->depot);
+				prec_to_node_to_insert = prec_to_node_to_insert->next;
 				bool cont = true;
 				//Parcours des clients de la route
-				while ((cont || cur_node->customer->id() != route_cur->depot.customer->id()) && !client_insere){
+				while ((cont || prec_to_node_to_insert->customer->id() != route_cur->depot.customer->id()) && (prec_to_node_to_insert->next->customer->id() != route_cur->depot.customer->id()) && !client_insere){
 					cont = false;
+					Time* time_to_reach_node_to_insert = new Time;
+					Time time_inc = get_inc_time(*prec_to_node_to_insert, *node_to_insert, time_to_reach_node_to_insert);
+					Time gain = get_gain(*prec_to_node_to_insert, *node_to_insert);
 					
-					Time distance = ws_.data().distance(client_unique->customer->id(), cur_node->customer->id());
-					Time time_to_reach_unique_client = std::max(cur_node->arrival, cur_node->customer->open()) 
-						+ distance;
+					if (gain>0 &&
 
-					//Si client eligible
-					if (time_to_reach_unique_client > client_unique->customer->open() &&																								//Intervalle temps
-						time_to_reach_unique_client < client_unique->customer->close() &&
+						(*time_to_reach_node_to_insert < node_to_insert->customer->open() ||												// Intervalle temps
+							*time_to_reach_node_to_insert < node_to_insert->customer->close()) &&
 
-						ws_.is_feasible(*cur_node, client_unique->customer->demand(), time_to_reach_unique_client-cur_node->arrival))
-					{		//test temps et capacite
-																									// On supprime le client inutil
-						ws_.remove(*client_unique);						// Supprime egalement la tournee
+						ws_.is_feasible(*prec_to_node_to_insert, node_to_insert->customer->demand(), time_inc))
+					{
+
+						ws_.remove(*node_to_insert);						// Supprime egalement la tournee
 
 						//Mise a jour du client
-						client_unique->route = cur_node->route;
-						client_unique->arrival = NO_TIME;
-						client_unique->load = NO_LOAD;
+						node_to_insert->route = prec_to_node_to_insert->route;
+						node_to_insert->arrival = NO_TIME;
+						node_to_insert->load = NO_LOAD;
 
-						ws_.insert(*cur_node, *client_unique);
+						ws_.insert(*prec_to_node_to_insert, *node_to_insert);
 
 						//Mise a jour des autres clients
-						ws_.update2(*cur_node);
+						ws_.update2(*prec_to_node_to_insert);
 					//	ws_.display2();
 						ws_.check();
 
 						client_insere = true;
 						retour = true;
 
-						std::cout << client_unique->customer->id() << " insert after " << cur_node->customer->id() << std::endl;
+						std::cout << node_to_insert->customer->id() << " insert after " << prec_to_node_to_insert->customer->id() << std::endl;
 					}
-					cur_node = cur_node->next;
+					prec_to_node_to_insert = prec_to_node_to_insert->next;
 				}
 			}
 		}
@@ -287,24 +288,27 @@ bool recherche_locale::ot_opt() {
 		for (int j = 1; j < ws_.nodes().size();j++) {
 
 			// Test si i et j ne pointent pas sur le meme point et si le point j n'a pas deja ete insere en tant que point i
-			if (i != j && std::find(already_done.begin(), already_done.end(), ws_.nodes()[j].customer->id()) == already_done.end()) {
+			if (i!=j && j != ws_.nodes()[i].prev->customer->id() && std::find(already_done.begin(), already_done.end(), ws_.nodes()[j].customer->id()) == already_done.end()) {
 				
 				NodeInfo& node_to_insert = ws_.nodes()[i];
 				NodeInfo& prec_to_node_to_insert = ws_.nodes()[j];
 
-				Time gain = ws_.data().distance(prec_to_node_to_insert.prev->customer->id(), prec_to_node_to_insert.customer->id()) 
-					- ws_.data().distance(node_to_insert.customer->id(), prec_to_node_to_insert.customer->id());
-				Time distance = ws_.data().distance(prec_to_node_to_insert.customer->id(), node_to_insert.customer->id());
-				Time time_to_reach_node_to_insert = std::max(prec_to_node_to_insert.arrival, prec_to_node_to_insert.customer->open())
-					+ distance;
+				Time* time_to_reach_node_to_insert = new Time;
+				Time time_inc = get_inc_time(prec_to_node_to_insert, node_to_insert, time_to_reach_node_to_insert);
+				Time gain = get_gain(prec_to_node_to_insert, node_to_insert);
 
-				if (gain>0 && old_gain>gain && 
 					
-					time_to_reach_node_to_insert > node_to_insert.customer->open() &&												// Intervalle temps
-					time_to_reach_node_to_insert < node_to_insert.customer->close() &&
+				if (gain>0 && 
 
-					ws_.is_feasible(prec_to_node_to_insert, node_to_insert.customer->demand(), time_to_reach_node_to_insert - prec_to_node_to_insert.arrival))
+					(*time_to_reach_node_to_insert < node_to_insert.customer->open() ||												// Intervalle temps
+					*time_to_reach_node_to_insert < node_to_insert.customer->close()) &&
+
+					ws_.is_feasible(prec_to_node_to_insert, node_to_insert.customer->demand(), time_inc ))
 				{
+					std::cout << node_to_insert.customer->id() << " insert after " <<
+						prec_to_node_to_insert.customer->id() << " (road " <<
+						prec_to_node_to_insert.route->id << ") gain:" << gain << std::endl;
+
 					ws_.remove(node_to_insert);
 					// ajout dans les points taites
 					already_done.push_back(node_to_insert.customer->id());
@@ -315,14 +319,17 @@ bool recherche_locale::ot_opt() {
 					node_to_insert.load = NO_LOAD;
 
 					ws_.insert(prec_to_node_to_insert, node_to_insert);
-
 					//Mise a jour des autres clients
 					//ws_.update2(*prev);
 					ws_.update2(prec_to_node_to_insert);
+
+				//	std::cout << "cur : calculated arrival:" << time_to_reach_node_to_insert << " real arrival:" << node_to_insert.arrival << std::endl;
+				//	std::cout << "next : calculated arrival:" << date_depart+time_inc << " real arrival:" << node_to_insert.next->arrival << std::endl;
+
+
 				//	ws_.display();
 					ws_.check();
 
-					std::cout << node_to_insert.customer->id() << " insert after " << prec_to_node_to_insert.customer->id() << " gain:" << gain << std::endl;
 					old_gain = gain;
 					retour = true;
 				}
@@ -345,35 +352,35 @@ bool recherche_locale::cross() {
 
 			if (a.customer->id() != b.customer->id() && a.customer->id() != 0 && b.customer->id() != 0) {
 				NodeInfo& a_temp = ws_.nodes()[a.customer->id()];
+				NodeInfo& a_temp_prec = *a_temp.prev;
+
 				NodeInfo& b_temp = ws_.nodes()[b.customer->id()];
+				NodeInfo& b_temp_prec = *b_temp.prev;
 
-				Time gain = ws_.data().distance(b_temp.prev->customer->id(), b_temp.customer->id());
-				gain -= ws_.data().distance(a_temp.customer->id(), b_temp.customer->id());
-				gain += ws_.data().distance(a_temp.prev->customer->id(), a_temp.customer->id());
-				gain -= ws_.data().distance(b_temp.customer->id(), a_temp.customer->id());
+				Time gain = get_gain(*a_temp.prev, b_temp) + get_gain(*b_temp.prev, a_temp);
 
-				Time distance_a = ws_.data().distance(b_temp.prev->customer->id(), a_temp.customer->id());
-				Time time_to_reach_node_to_insert_a = std::max(b_temp.prev->arrival, a_temp.customer->open())
-					+ distance_a;
+				//a
+				Time* time_to_reach_node_to_insert_a = new Time;
+				Time time_inc_a = get_inc_time(b_temp_prec, a_temp, time_to_reach_node_to_insert_a);
 
-				Time distance_b = ws_.data().distance(a_temp.prev->customer->id(), b_temp.customer->id());
-				Time time_to_reach_node_to_insert_b = std::max(a_temp.prev->arrival, b_temp.customer->open())
-					+ distance_b;
+				//b
+				Time* time_to_reach_node_to_insert_b = new Time;
+				Time time_inc_b = get_inc_time(a_temp_prec, b_temp, time_to_reach_node_to_insert_b);
 
 				if ((gain>0 &&
 					
-					time_to_reach_node_to_insert_a > a_temp.customer->open() &&												// Intervalle temps
-					time_to_reach_node_to_insert_a < a_temp.customer->close() &&
+					(*time_to_reach_node_to_insert_a < a_temp.customer->open() ||												// Intervalle temps
+						*time_to_reach_node_to_insert_a < a_temp.customer->close()) &&
 
-					ws_.is_feasible(*b_temp.prev, a_temp.customer->demand(), time_to_reach_node_to_insert_a - b_temp.prev->arrival)) 
+					ws_.is_feasible(b_temp_prec, a_temp.customer->demand(), time_inc_a))
 					
 					&& 
 					
-					(time_to_reach_node_to_insert_b > b_temp.customer->open() &&												// Intervalle temps
-					time_to_reach_node_to_insert_b < b_temp.customer->close() &&
+					(*time_to_reach_node_to_insert_b < b_temp.customer->open() ||										// Intervalle temps
+					*time_to_reach_node_to_insert_b < b_temp.customer->close()) &&
 
-					ws_.is_feasible(*a_temp.prev, b_temp.customer->demand(), time_to_reach_node_to_insert_b - a_temp.prev->arrival))					
-					){
+					ws_.is_feasible(a_temp_prec, b_temp.customer->demand(), time_inc_b))					
+					{
 						swap(a_temp, b_temp);
 						ws_.check();
 						
@@ -448,4 +455,35 @@ std::vector<Id> recherche_locale::recherche_node_fenetre_temps(const NodeInfo& g
 		}
 	}
 	return res;
+}
+
+
+
+Time recherche_locale::get_inc_time(const NodeInfo& prec_node, const NodeInfo& cur_node, Time* time_to_reach) {
+	Time distance_prec_cur = ws_.data().distance(prec_node.customer->id(), cur_node.customer->id());
+	Time distance_cur_next = ws_.data().distance(cur_node.customer->id(), prec_node.next->customer->id());
+
+	Time date_depart = std::max(prec_node.arrival, prec_node.customer->open());
+	*time_to_reach = date_depart
+		+ distance_prec_cur
+		//			+ prec_to_node_to_insert.customer->service()
+		;
+	Time time_inc = std::max(*time_to_reach, cur_node.customer->open())
+		+ distance_cur_next
+		- date_depart
+		;
+	//ajout du temps d'attente apres le arrival
+	if (date_depart != prec_node.arrival)	time_inc += (prec_node.customer->open() - prec_node.arrival);
+
+	return time_inc;
+}
+
+Time recherche_locale::get_gain(const NodeInfo& prec_node, const NodeInfo& cur_node) {
+	return ws_.data().distance(prec_node.customer->id(), prec_node.next->customer->id())
+		- (ws_.data().distance(prec_node.customer->id(), cur_node.customer->id())
+			+ ws_.data().distance(cur_node.customer->id(), prec_node.next->customer->id()))
+
+		+ (ws_.data().distance(cur_node.prev->customer->id(), cur_node.customer->id())
+			+ ws_.data().distance(cur_node.customer->id(), cur_node.next->customer->id()))
+		- ws_.data().distance(cur_node.prev->customer->id(), cur_node.next->customer->id());
 }
