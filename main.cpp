@@ -68,8 +68,10 @@ void put_to_file()
 {
 	clock_t	chronometer = clock();				//Chronometre
 	std::ofstream file_res("res.csv");
+	std::ofstream file_time("time.csv");
 
-	if (!file_res) {
+
+	if (!file_res || !file_time) {
 		std::cout << "fichiers non initialises" << std::endl;
 	}
 
@@ -137,23 +139,41 @@ void put_to_file()
 	data_tab.push_back(Data("INSTANCES/rc208.txt"));
 
 	// Calcul des RL et des 5eme generation de chaque donnee 
-	file_res << "Data file;Nb routes (i);total distance (i);";
-	file_res << "Nb routes (rl);total distance (rl)";
+	file_res << "Data file;Nb routes (i);total distance (i);" << std::endl;
+	file_res << "Nb routes (rl);total distance (rl)" << std::endl;
+	file_time << "Time to get data :" << (float)(clock()-chronometer) / CLOCKS_PER_SEC << std::endl;
+	file_time << "Time heuristique;Time RL;Time total;" << std::endl;
+	
+	clock_t t_hi;
+	clock_t t_rl;
+	chronometer = clock();
 	for (int i = 0;i < data_tab.size();i++) {
 		std::cout << "Data n" << i+1 << std::endl;
 		file_res << "Data " << i + 1 << ";";
+		file_time << "Data " << i + 1 << ";";
+
 
 		std::cout << "Heuristique d'insertion" << std::endl;
+		t_hi = clock();
 		heuristique_insertion hi(data_tab[i]);
 		hi.construction_par_insertion();
+		t_hi = clock() - t_hi;
+		file_time << (float)t_hi / CLOCKS_PER_SEC << ";";
 		file_res << hi.nb_routes() << ";" << hi.total_distance() << ";";
 
 		std::cout << "Recherche locale" << std::endl;
+		t_rl = clock();
 		recherche_locale r(hi);
+		t_rl = clock() - t_rl;
+		file_time << (float)t_rl / CLOCKS_PER_SEC << ";";
+
 		file_res << hi.nb_routes() << ";" << hi.total_distance() << std::endl;
 		std::cout << (i * 100) / data_tab.size() << "%" << std::endl << std::endl;
+
+		file_time << ((float)t_hi + t_rl) / CLOCKS_PER_SEC << ";" << std::endl;
 	}
 
+	file_time << "TOTAL EXECUTION :" << (float)(clock() - chronometer) / CLOCKS_PER_SEC  << std::endl;
 	file_res.close();
 }
 
