@@ -21,7 +21,9 @@ public:
 	bool two_opt_etoile();						//Cas general (appel cas particulier)
 	bool ot_opt_cp();									//Cas particulier
 	bool ot_opt();										//Cas general (appel cas particulier)
-	Time get_inc_time(const NodeInfo & prec_node, const NodeInfo & cur_node, Time * time_to_reach);
+	Time get_inc_time_ot_opt(const NodeInfo & prec_node, const NodeInfo & cur_node, Time * time_to_reach);
+	Time get_inc_time_cross(const NodeInfo & prec_node, const NodeInfo & cur_node, Time * time_to_reach);
+	Time get_inc_time_ot_opt(const NodeInfo & prec_node, const NodeInfo & cur_node, Time * time_to_reach, WorkingSolution & ws_temp);
 	Time get_gain(const NodeInfo & prec_node, const NodeInfo & cur_node);
 	bool cross();											//Cas general
 

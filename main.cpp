@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <chrono>
 #include <random>
+#include <fstream>
 
 #include "bkr.h"
 #include "algorithms.h"
@@ -63,10 +64,102 @@ void test_solution (const Data & data, const BKR & bkr)
 }
 
 
+void put_to_file()
+{
+	clock_t	chronometer = clock();				//Chronometre
+	std::ofstream file_res("res.csv");
+
+	if (!file_res) {
+		std::cout << "fichiers non initialises" << std::endl;
+	}
+
+	std::vector<Data> data_tab;
+
+	data_tab.push_back(Data("INSTANCES/c101.txt"));
+	data_tab.push_back(Data("INSTANCES/c102.txt"));
+	data_tab.push_back(Data("INSTANCES/c103.txt"));
+	data_tab.push_back(Data("INSTANCES/c104.txt"));
+	data_tab.push_back(Data("INSTANCES/c105.txt"));
+	data_tab.push_back(Data("INSTANCES/c106.txt"));
+	data_tab.push_back(Data("INSTANCES/c107.txt"));
+	data_tab.push_back(Data("INSTANCES/c108.txt"));
+	data_tab.push_back(Data("INSTANCES/c109.txt"));
+
+	data_tab.push_back(Data("INSTANCES/c201.txt"));
+	data_tab.push_back(Data("INSTANCES/c202.txt"));
+	data_tab.push_back(Data("INSTANCES/c203.txt"));
+	data_tab.push_back(Data("INSTANCES/c204.txt"));
+	data_tab.push_back(Data("INSTANCES/c205.txt"));
+	data_tab.push_back(Data("INSTANCES/c206.txt"));
+	data_tab.push_back(Data("INSTANCES/c207.txt"));
+	data_tab.push_back(Data("INSTANCES/c208.txt"));
+
+	data_tab.push_back(Data("INSTANCES/r101.txt"));
+	data_tab.push_back(Data("INSTANCES/r102.txt"));
+	data_tab.push_back(Data("INSTANCES/r103.txt"));
+	data_tab.push_back(Data("INSTANCES/r104.txt"));
+	data_tab.push_back(Data("INSTANCES/r105.txt"));
+	data_tab.push_back(Data("INSTANCES/r106.txt"));
+	data_tab.push_back(Data("INSTANCES/r107.txt"));
+	data_tab.push_back(Data("INSTANCES/r108.txt"));
+	data_tab.push_back(Data("INSTANCES/r109.txt"));
+	data_tab.push_back(Data("INSTANCES/r110.txt"));
+	data_tab.push_back(Data("INSTANCES/r111.txt"));
+	data_tab.push_back(Data("INSTANCES/r112.txt"));
+
+	data_tab.push_back(Data("INSTANCES/r201.txt"));
+	data_tab.push_back(Data("INSTANCES/r202.txt"));
+	data_tab.push_back(Data("INSTANCES/r203.txt"));
+	data_tab.push_back(Data("INSTANCES/r204.txt"));
+	data_tab.push_back(Data("INSTANCES/r205.txt"));
+	data_tab.push_back(Data("INSTANCES/r206.txt"));
+	data_tab.push_back(Data("INSTANCES/r207.txt"));
+	data_tab.push_back(Data("INSTANCES/r208.txt"));
+	data_tab.push_back(Data("INSTANCES/r209.txt"));
+	data_tab.push_back(Data("INSTANCES/r210.txt"));
+	data_tab.push_back(Data("INSTANCES/r211.txt"));
+
+	data_tab.push_back(Data("INSTANCES/rc101.txt"));
+	data_tab.push_back(Data("INSTANCES/rc102.txt"));
+	data_tab.push_back(Data("INSTANCES/rc103.txt"));
+	data_tab.push_back(Data("INSTANCES/rc104.txt"));
+	data_tab.push_back(Data("INSTANCES/rc105.txt"));
+	data_tab.push_back(Data("INSTANCES/rc106.txt"));
+	data_tab.push_back(Data("INSTANCES/rc107.txt"));
+
+	data_tab.push_back(Data("INSTANCES/rc201.txt"));
+	data_tab.push_back(Data("INSTANCES/rc202.txt"));
+	data_tab.push_back(Data("INSTANCES/rc203.txt"));
+	data_tab.push_back(Data("INSTANCES/rc204.txt"));
+	data_tab.push_back(Data("INSTANCES/rc205.txt"));
+	data_tab.push_back(Data("INSTANCES/rc206.txt"));
+	data_tab.push_back(Data("INSTANCES/rc207.txt"));
+	data_tab.push_back(Data("INSTANCES/rc208.txt"));
+
+	// Calcul des RL et des 5eme generation de chaque donnee 
+	for (int i = 0;i < data_tab.size();i++) {
+		std::cout << "Data n" << i+1 << std::endl;
+		file_res << "Data " << i+1 << ";" << std::endl;
+		file_res << "nb_road\tdist" << std::endl;
+
+		std::cout << "Heuristique d'insertion" << std::endl;
+		heuristique_insertion hi(data_tab[i]);
+		hi.construction_par_insertion();
+		file_res << hi.nb_routes() << "\t" << hi.total_distance() << std::endl;
+
+		std::cout << "Recherche locale" << std::endl;
+		recherche_locale r(hi);
+		file_res << hi.nb_routes() << "\t" << hi.total_distance() << std::endl;
+		std::cout << (i * 100) / data_tab.size() << "%" << std::endl << std::endl;
+	}
+
+	file_res.close();
+}
+
 // main function
 int main (int argc, char * argv[])
 {
-  std::string filename("INSTANCES/r201.txt");
+  std::string filename("INSTANCES/c104.txt");
 
   // check the command line
   if (argc > 2)
@@ -95,7 +188,7 @@ int main (int argc, char * argv[])
   }
 	
 	//Appel des 2 heuristiques
-	heuristique_insertion		h_insertion(data);
+/*	heuristique_insertion		h_insertion(data);
 	h_insertion.construction_par_insertion();
 	h_insertion.display();
 	h_insertion.check();
@@ -104,7 +197,9 @@ int main (int argc, char * argv[])
 
 	std::cout << " Rech loc" << std::endl;
 	h_insertion.check();
-	h_insertion.display();
+	h_insertion.display();*/
+
+	put_to_file();
 
 
   return 0;

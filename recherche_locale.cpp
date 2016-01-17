@@ -26,11 +26,11 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 					std::cout << "otopt, Nb route :" << ws_.nb_routes() << std::endl;
 					if (!(ot_opt() && ite_ot_opt < MAX_ITE)) {
 						std::cout << "cross, Nb route :" << ws_.nb_routes() << std::endl;
-						if (!(cross() && ite_cross < MAX_ITE)) {
+	//					if (!(cross() && ite_cross < MAX_ITE)) {
 							fin = true;
-						}	else {
-							ite_cross++;
-						}
+	//					}	else {
+	//						ite_cross++;
+	//					}
 					}	else {
 						ite_ot_opt++;
 					}
@@ -208,7 +208,7 @@ bool recherche_locale::ot_opt_cp() {
 				while ((cont || prec_to_node_to_insert->customer->id() != route_cur->depot.customer->id()) && (prec_to_node_to_insert->next->customer->id() != route_cur->depot.customer->id()) && !client_insere){
 					cont = false;
 					Time* time_to_reach_node_to_insert = new Time;
-					Time time_inc = get_inc_time(*prec_to_node_to_insert, *node_to_insert, time_to_reach_node_to_insert);
+					Time time_inc = get_inc_time_ot_opt(*prec_to_node_to_insert, *node_to_insert, time_to_reach_node_to_insert);
 					Time gain = get_gain(*prec_to_node_to_insert, *node_to_insert);
 
 					if (gain>0 &&
@@ -236,7 +236,7 @@ bool recherche_locale::ot_opt_cp() {
 						client_insere = true;
 						retour = true;
 
-						std::cout << node_to_insert->customer->id() << " insert after " << prec_to_node_to_insert->customer->id() << std::endl;
+		//				std::cout << node_to_insert->customer->id() << " insert after " << prec_to_node_to_insert->customer->id() << std::endl;
 					}
 					prec_to_node_to_insert = prec_to_node_to_insert->next;
 				}
@@ -267,7 +267,7 @@ bool recherche_locale::ot_opt() {
 				NodeInfo& prec_to_node_to_insert = ws_.nodes()[j];
 				
 				Time* time_to_reach_node_to_insert = new Time;
-				Time time_inc = get_inc_time(prec_to_node_to_insert, node_to_insert, time_to_reach_node_to_insert);
+				Time time_inc = get_inc_time_ot_opt(prec_to_node_to_insert, node_to_insert, time_to_reach_node_to_insert);
 				Time gain = get_gain(prec_to_node_to_insert, node_to_insert);
 
 
@@ -293,14 +293,12 @@ bool recherche_locale::ot_opt() {
 
 					ws_.insert(prec_to_node_to_insert, node_to_insert);
 					//Mise a jour des autres clients
-					//ws_.update2(*prev);
 					ws_.update2(prec_to_node_to_insert);
 
-				//	std::cout << "cur : calculated arrival:" << time_to_reach_node_to_insert << " real arrival:" << node_to_insert.arrival << std::endl;
-				//	std::cout << "next : calculated arrival:" << date_depart+time_inc << " real arrival:" << node_to_insert.next->arrival << std::endl;
+	//				std::cout << "cur : calculated arrival:" << time_to_reach_node_to_insert << " real arrival:" << node_to_insert.arrival << std::endl;
 
 
-				//	ws_.display();
+			//		ws_.display();
 					ws_.check();
 
 					old_gain = gain;
@@ -323,43 +321,51 @@ bool recherche_locale::cross() {
 			/*std::vector<Id> a_possibles = recherche_node_fenetre_temps(a);
 			std::vector<Id> b_possibles = recherche_node_fenetre_temps(b);*/
 
-			if (a.customer->id() != b.customer->id() && a.customer->id() != 0 && b.customer->id() != 0) {
-				NodeInfo& a_temp = ws_.nodes()[a.customer->id()];
+			if (a.customer->id() != b.customer->id() && a.customer->id() != 0 && b.customer->id() != 0 && a.route->depot.next->next->customer->id() != 0 && b.route->depot.next->next->customer->id()) {
+				WorkingSolution ws_temp(ws_);
+				NodeInfo& a_temp = ws_temp.nodes()[a.customer->id()];
 				NodeInfo& a_temp_prec = *a_temp.prev;
 
-				NodeInfo& b_temp = ws_.nodes()[b.customer->id()];
+				NodeInfo& b_temp = ws_temp.nodes()[b.customer->id()];
 				NodeInfo& b_temp_prec = *b_temp.prev;
 
 				Time gain = get_gain(*a_temp.prev, b_temp) + get_gain(*b_temp.prev, a_temp);
 
 				//a
 				Time* time_to_reach_node_to_insert_a = new Time;
-				Time time_inc_a = get_inc_time(b_temp_prec, a_temp, time_to_reach_node_to_insert_a);
+				Time time_inc_a = get_inc_time_ot_opt(b_temp_prec, a_temp, time_to_reach_node_to_insert_a,ws_temp);
 
 				//b
 				Time* time_to_reach_node_to_insert_b = new Time;
-				Time time_inc_b = get_inc_time(a_temp_prec, b_temp, time_to_reach_node_to_insert_b);
+				Time time_inc_b = get_inc_time_ot_opt(a_temp_prec, b_temp, time_to_reach_node_to_insert_b,ws_temp);
+
+				ws_temp.remove(a_temp);
+				ws_temp.remove(b_temp);
 				
 				if ((gain>0 &&
 					
 					(*time_to_reach_node_to_insert_a < a_temp.customer->open() ||												// Intervalle temps
 						*time_to_reach_node_to_insert_a < a_temp.customer->close()) &&
 
-					ws_.is_feasible(b_temp_prec, a_temp.customer->demand(), time_inc_a))
+					ws_temp.is_feasible(b_temp_prec, a_temp.customer->demand(), time_inc_a))
 					
 					&& 
 					
 					(*time_to_reach_node_to_insert_b < b_temp.customer->open() ||										// Intervalle temps
 					*time_to_reach_node_to_insert_b < b_temp.customer->close()) &&
 
-					ws_.is_feasible(a_temp_prec, b_temp.customer->demand(), time_inc_b))					
+					ws_temp.is_feasible(a_temp_prec, b_temp.customer->demand(), time_inc_b))
 					{
-						swap(a_temp, b_temp);
-						ws_.check();
+						//swap(a_temp, b_temp);
+						ws_temp.insert(a_temp_prec, b_temp);
+						ws_temp.insert(b_temp_prec, a_temp);
+				//		ws_temp.display();
+						ws_temp.check();
 						
 						std::cout << a_temp.customer->id() << " swaped with " << b_temp.customer->id() << " gain:" << gain << std::endl;
 
 						modification = true;
+						ws_ = ws_temp;
 				}
 			}
 		}
@@ -432,7 +438,7 @@ std::vector<Id> recherche_locale::recherche_node_fenetre_temps(const NodeInfo& g
 
 
 
-Time recherche_locale::get_inc_time(const NodeInfo& prec_node, const NodeInfo& cur_node, Time* time_to_reach) {
+Time recherche_locale::get_inc_time_ot_opt(const NodeInfo& prec_node, const NodeInfo& cur_node, Time* time_to_reach) {
 	Time distance_prec_cur = ws_.data().distance(prec_node.customer->id(), cur_node.customer->id());
 	Time distance_cur_next = ws_.data().distance(cur_node.customer->id(), prec_node.next->customer->id());
 
@@ -447,7 +453,25 @@ Time recherche_locale::get_inc_time(const NodeInfo& prec_node, const NodeInfo& c
 		;
 	//ajout du temps d'attente apres le arrival
 	if (date_depart != prec_node.arrival)	time_inc += (prec_node.customer->open() - prec_node.arrival);
+	return time_inc;
+}
 
+
+Time recherche_locale::get_inc_time_ot_opt(const NodeInfo& prec_node, const NodeInfo& cur_node, Time* time_to_reach, WorkingSolution& ws_temp) {
+	Time distance_prec_cur = ws_temp.data().distance(prec_node.customer->id(), cur_node.customer->id());
+	Time distance_cur_next = ws_temp.data().distance(cur_node.customer->id(), prec_node.next->customer->id());
+
+	Time date_depart = std::max(prec_node.arrival, prec_node.customer->open());
+	*time_to_reach = date_depart
+		+ distance_prec_cur
+		//			+ prec_to_node_to_insert.customer->service()
+		;
+	Time time_inc = std::max(*time_to_reach, cur_node.customer->open())
+		+ distance_cur_next
+		- date_depart
+		;
+	//ajout du temps d'attente apres le arrival
+	if (date_depart != prec_node.arrival)	time_inc += (prec_node.customer->open() - prec_node.arrival);
 	return time_inc;
 }
 

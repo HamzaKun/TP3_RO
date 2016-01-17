@@ -49,6 +49,7 @@ void heuristique_insertion::construction_par_insertion()
 			cur_id = new Id;
 		}
 	}
+	check();
 }
 
 // TODO Il faudrait renvoyer un booleen avec cette fonction vrai si une nouvel ele est trouve faux sinon et stocke ledit ele dans un parametre
