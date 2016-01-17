@@ -25,7 +25,7 @@ recherche_locale::recherche_locale(WorkingSolution& ws) : ws_(ws)
 	//			if (!(two_opt_etoile() && ite_two_opt_etoile) >= MAX_ITE) {
 					std::cout << "otopt, Nb route :" << ws_.nb_routes() << std::endl;
 					if (!(ot_opt() && ite_ot_opt < MAX_ITE)) {
-						std::cout << "cross, Nb route :" << ws_.nb_routes() << std::endl;
+	//					std::cout << "cross, Nb route :" << ws_.nb_routes() << std::endl;
 	//					if (!(cross() && ite_cross < MAX_ITE)) {
 							fin = true;
 	//					}	else {
@@ -124,7 +124,7 @@ bool recherche_locale::two_opt_etoile_cp() {
 bool recherche_locale::two_opt_etoile() {
 	
 	bool retour = false;													// Par défaut on retourne faux
-	WorkingSolution new_w(ws_);												// Création d'une nouvelle solution
+	WorkingSolution new_w = ws_;												// Création d'une nouvelle solution
 
 	NodeInfo * a = nullptr;
 	NodeInfo * b = nullptr;
@@ -132,12 +132,18 @@ bool recherche_locale::two_opt_etoile() {
 	NodeInfo * b2 = nullptr;
 
 	std::cout << "Lancement de 2-opt-* cas general : " << std::endl;
-	for (RouteInfo * x = new_w.first(); x != nullptr; x = x->next_) {					// Pour chaque route
-		for (NodeInfo * a = x->depot.next; a != &(x->depot) ; a = a->next) {			// Pour chaque point de la première route
+	ws_.check();
+	for (RouteInfo * x = ws_.first(); x != nullptr; x = x->next_) {					// Pour chaque route
+		for (NodeInfo * a_inc = x->depot.next; a_inc->customer->id() != x->depot.customer->id() ; a_inc = a_inc->next) {			// Pour chaque point de la première route
 			for (RouteInfo * y = x->next_ ; y != nullptr; y = y->next_) {				// Pour chaque autre route
-				for (NodeInfo * b = y->depot.next; b != &(y->depot); b = b->next) {
-					a2 = a->next;		b2 = b->next;
+				for (NodeInfo * b_inc = y->depot.next; b_inc->customer->id() != y->depot.customer->id(); b_inc = b_inc->next) {
+	//				new_w.display();
 
+					a = &new_w.nodes()[a_inc->customer->id()];
+					b = &new_w.nodes()[b_inc->customer->id()];
+					a2 = a->next;	b2 = b->next;
+					new_w.check();
+					std::cout << b_inc->customer->id() << std::endl;
 					// Calcul de distances pour calcul gain
 					Time a_a2 = new_w.data().distance(a->customer->id(), a2->customer->id());
 					Time b_b2 = new_w.data().distance(b->customer->id(), b2->customer->id());
@@ -149,8 +155,8 @@ bool recherche_locale::two_opt_etoile() {
 					// Second gain potentiel : (b -> b') - (b -> a')
 					gain += new_w.data().distance(b->customer->id(), b2->customer->id()) - b_a2;
 					if (gain > 0) {
-						if (new_w.is_feasible((*a2), b->load, b->arrival + b_a2 - b_b2)
-							&& new_w.is_feasible((*b2), a->load, a->arrival + a_b2 - a_a2)) {
+					/*	if (new_w.is_feasible((*a2), b->load, b->arrival + b_a2 - b_b2)
+							&& new_w.is_feasible((*b2), a->load, a->arrival + a_b2 - a_a2)) {*/
 
 								NodeInfo * next_node = nullptr;
 								Nvector a_nodes;
@@ -186,12 +192,20 @@ bool recherche_locale::two_opt_etoile() {
 
 
 								// TODO : to remove : display, cout, check
-								new_w.display();
+							/*	new_w.display();
 								std::cout << "Avant le check" << std::endl;
 								new_w.check();						
-								std::cout << "Après le check" << std::endl;
-								retour = true;
-						}
+								std::cout << "Après le check" << std::endl;*/
+
+								if (new_w.is_feasible(*a, 0, 0) && new_w.is_feasible(*b, 0, 0)) {
+									retour = true;
+									new_w.check();
+								}
+								else {
+									new_w = ws_;
+									ws_.display();
+								}
+				//		}
 					}
 				}
 			}
