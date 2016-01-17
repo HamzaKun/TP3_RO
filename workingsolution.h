@@ -71,7 +71,7 @@ class WorkingSolution
     float				cpu_time_;			// Temps de calcul
 
   public:
-    WorkingSolution (const Data &);          // Créer une solution
+    WorkingSolution (const Data &);         // Créer une solution
 
     WorkingSolution & operator= (const WorkingSolution &);
 
@@ -91,8 +91,8 @@ class WorkingSolution
     void update      (NodeInfo &, const Load &, const Time &, RouteInfo *);		// Met à jour les dates de passage
     void update2     (NodeInfo &);
 
-		void display();
-		void display2();
+	void display();
+	void display2();
 
 	// Getters/Setters
     const Data &      data      () const {return data_;}

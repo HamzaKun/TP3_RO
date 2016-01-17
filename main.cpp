@@ -137,19 +137,20 @@ void put_to_file()
 	data_tab.push_back(Data("INSTANCES/rc208.txt"));
 
 	// Calcul des RL et des 5eme generation de chaque donnee 
+	file_res << "Data file;Nb routes (i);total distance (i);";
+	file_res << "Nb routes (rl);total distance (rl)";
 	for (int i = 0;i < data_tab.size();i++) {
 		std::cout << "Data n" << i+1 << std::endl;
-		file_res << "Data " << i+1 << ";" << std::endl;
-		file_res << "nb_road\tdist" << std::endl;
+		file_res << "Data " << i + 1 << ";";
 
 		std::cout << "Heuristique d'insertion" << std::endl;
 		heuristique_insertion hi(data_tab[i]);
 		hi.construction_par_insertion();
-		file_res << hi.nb_routes() << "\t" << hi.total_distance() << std::endl;
+		file_res << hi.nb_routes() << ";" << hi.total_distance() << ";";
 
 		std::cout << "Recherche locale" << std::endl;
 		recherche_locale r(hi);
-		file_res << hi.nb_routes() << "\t" << hi.total_distance() << std::endl;
+		file_res << hi.nb_routes() << ";" << hi.total_distance() << std::endl;
 		std::cout << (i * 100) / data_tab.size() << "%" << std::endl << std::endl;
 	}
 
@@ -199,7 +200,7 @@ int main (int argc, char * argv[])
 	h_insertion.check();
 	h_insertion.display();
 
-//	put_to_file();
+	put_to_file();
 
 
   return 0;
